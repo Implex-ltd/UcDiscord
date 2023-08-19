@@ -69,4 +69,5 @@ func main() {
 	}
     
 	log.Printf("Joined %s (%s)\n", resp.Guild.Name, resp.Guild.ID)
+}
 ```
