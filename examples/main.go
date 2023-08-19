@@ -1,22 +1,3 @@
-# Undetected Discord
-
-Undetected Discord api wrapper made by human, for bots.
-
-## Install
-```
-go get -u github.com/Implex-ltd/ucdiscord/ucdiscord
-```
-
-## Issues
-```
-$env:GOPRIVATE="github.com/Implex-ltd/"
-$env:GOSUMDB="off"
-go clean -modcache
-set GOPRIVATE=github.com/Implex-ltd/ucdiscord/ucdiscord
-```
-
-## Quick start
-```go
 package main
 
 import (
@@ -56,8 +37,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-    
-    // Join a server
+
+	// join a server
 	resp, err := client.JoinGuild(&u.JoinConfig{
 		InviteCode: "supercode",
 		GuildID:    "00000000000000",
@@ -67,6 +48,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-    
+
+	// access captcha: resp.CaptchaKey, resp.CaptchaRqdata, resp.CaptchaRqtoken
+
 	log.Printf("Joined %s (%s)\n", resp.Guild.Name, resp.Guild.ID)
-```
+
+	// create a account
+	response, err := client.Register(&u.RegisterConfig{
+		Username: "foo",
+		InviteCode: "bar",
+		CaptchaKey: "P0_..",
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Created account %s\n", response.Token)
+}
