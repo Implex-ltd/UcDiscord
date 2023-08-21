@@ -69,6 +69,11 @@ func (c *Client) GetCookies() error {
 	})*/
 
 	//c.HttpClient.Cookies = append(c.HttpClient.Cookies, cookies...)
+	
+	c.HttpClient.Cookies = append(c.HttpClient.Cookies, &http.Cookie{
+		Name:  "locale",
+		Value: strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0],
+	})
 
 	var fp FingerprintResponse
 	if err := json.Unmarshal([]byte(resp), &fp); err != nil {
@@ -156,6 +161,8 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 			IsXtrack: true,
 		})
 
+		header.Del("x-context-properties")
+		header.Del("authorization")
 		header.Del("x-discord-timezone")
 		header.Del("x-discord-locale")
 		header.Del("x-debug-options")
