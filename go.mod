@@ -3,7 +3,7 @@ module github.com/Implex-ltd/ucdiscord
 go 1.21
 
 require (
-	github.com/Implex-ltd/cleanhttp v0.0.0-20230821101853-39283a14c9ec
+	github.com/Implex-ltd/cleanhttp v0.0.0-20230821113550-09c17cdbd51f
 	github.com/bogdanfinn/fhttp v0.5.23
 	github.com/gorilla/websocket v1.5.0
 )
