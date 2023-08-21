@@ -132,9 +132,9 @@ type JoinServerResponse struct {
 	CaptchaRqdata  string   `json:"captcha_rqdata"`
 	CaptchaRqtoken string   `json:"captcha_rqtoken"`
 
-	Code      string `json:"code"`
-	Type      int    `json:"type"`
-	ExpiresAt any    `json:"expires_at"`
+	Code      int `json:"code"`
+	Type      int `json:"type"`
+	ExpiresAt any `json:"expires_at"`
 	Guild     struct {
 		ID                       string   `json:"id"`
 		Name                     string   `json:"name"`

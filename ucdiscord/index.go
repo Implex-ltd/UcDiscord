@@ -325,7 +325,7 @@ func (c *Client) SendMessage(config *SendMessageConfig) (any, error) {
 		return nil, err
 	}
 
-	var data JoinServerResponse
+	var data JoinServerResponse // wtf ?
 	if err := json.Unmarshal([]byte(resp), &data); err != nil {
 		return nil, fmt.Errorf("error unmarshaling response: %v", err.Error())
 	}
