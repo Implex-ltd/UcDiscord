@@ -1,4 +1,4 @@
-# Undetected Discord
+# Undetected Discord wrapper
 
 Undetected Discord api wrapper made by human, for bots.
 

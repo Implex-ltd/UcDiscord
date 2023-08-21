@@ -23,7 +23,7 @@ func NewClient(config *ClientConfig) (*Client, error) {
 
 	if config.GetCookies {
 		if err := c.GetCookies(); err != nil {
-			return nil, fmt.Errorf("error getting cookies: %w", err)
+			return nil, fmt.Errorf("error getting cookies: %v", err.Error())
 		}
 	}
 
@@ -38,7 +38,7 @@ func (c *Client) GetCookies() error {
 		Header: c.getHeader(&HeaderConfig{}),
 	})
 	if err != nil {
-		return fmt.Errorf("error making HTTP request: %w", err)
+		return fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	defer response.Body.Close()
@@ -48,14 +48,12 @@ func (c *Client) GetCookies() error {
 		return err
 	}
 
-	fmt.Println(c.HttpClient.FormatCookies())
-
 	/*cookies := []*cyclepls.Cookie{}
 
 	if c.Config.GetCloudflareCookes {
 		cfbm, err := cloudflarereverse.GetCfbm(c.HttpClient.Config.BrowserFp, c.HttpClient.Config.Proxy) // make it proxyless because they are detecting proxies...
 		if err != nil {
-			return nil, fmt.Errorf("error getting Cloudflare cookies: %w", err)
+			return nil, fmt.Errorf("error getting Cloudflare cookies: %v", err.Error())
 		}
 
 		cfCookie := &http.Cookie{
@@ -74,7 +72,7 @@ func (c *Client) GetCookies() error {
 
 	var fp FingerprintResponse
 	if err := json.Unmarshal([]byte(resp), &fp); err != nil {
-		return fmt.Errorf("cant unmarshal fingerpint: %w", err)
+		return fmt.Errorf("cant unmarshal fingerpint: %v", err.Error())
 	}
 
 	c.xfingerprint = fp.Fingerprint
@@ -92,7 +90,7 @@ func (c *Client) JoinGuild(config *JoinConfig) (*JoinServerResponse, error) {
 		SessionID: c.WsProperties.D.SessionID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling payload: %w", err)
+		return nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
 	header := c.getHeader(&HeaderConfig{
@@ -106,8 +104,7 @@ func (c *Client) JoinGuild(config *JoinConfig) (*JoinServerResponse, error) {
 		Header: header,
 	})
 	if err != nil {
-		fmt.Println(err)
-		return nil, fmt.Errorf("error making HTTP request: %w", err)
+		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	defer response.Body.Close()
@@ -117,11 +114,9 @@ func (c *Client) JoinGuild(config *JoinConfig) (*JoinServerResponse, error) {
 		return nil, err
 	}
 
-	fmt.Println("join:", response.Body)
-
 	var data JoinServerResponse
 	if err := json.Unmarshal([]byte(resp), &data); err != nil {
-		return nil, fmt.Errorf("error unmarshaling response: %w", err)
+		return nil, fmt.Errorf("error unmarshaling response: %v", err.Error())
 	}
 
 	return &data, nil
@@ -168,7 +163,7 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 
 	payload, err := json.Marshal(&pl)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling payload: %w", err)
+		return nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
 	header.Add("x-fingerprint", c.xfingerprint)
@@ -181,7 +176,7 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("error making HTTP request: %w", err)
+		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	defer response.Body.Close()
@@ -193,7 +188,7 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 
 	var data RegisterResponse
 	if err := json.Unmarshal([]byte(resp), &data); err != nil {
-		return nil, fmt.Errorf("error unmarshaling response: %w", err)
+		return nil, fmt.Errorf("error unmarshaling response: %v", err.Error())
 	}
 
 	if data.Token != "" {
@@ -236,7 +231,7 @@ func (c *Client) SetAvatar(config *AvatarConfig) error {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to set pfp, status code: %d", response.Status)
+		return fmt.Errorf("failed to set pfp, status code: %d", response.StatusCode)
 	}
 
 	return nil
@@ -248,7 +243,7 @@ func (c *Client) SetBirth(config *EditBirthConfig) error {
 		DateOfBirth: config.Date,
 	})
 	if err != nil {
-		return fmt.Errorf("error marshaling payload: %w", err)
+		return fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
 	header := c.getHeader(&HeaderConfig{})
@@ -261,13 +256,13 @@ func (c *Client) SetBirth(config *EditBirthConfig) error {
 		Header: header,
 	})
 	if err != nil {
-		return fmt.Errorf("error making HTTP request: %w", err)
+		return fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to add birth-date, status code: %d", response.Status)
+		return fmt.Errorf("failed to add birth-date, status code: %d", response.StatusCode)
 	}
 
 	return nil
@@ -280,7 +275,7 @@ func (c *Client) SetProfil(config *EditProfilConfig) error {
 		AccentColor: config.AccentColor,
 	})
 	if err != nil {
-		return fmt.Errorf("error marshaling payload: %w", err)
+		return fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
 	header := c.getHeader(&HeaderConfig{})
@@ -293,11 +288,11 @@ func (c *Client) SetProfil(config *EditProfilConfig) error {
 		Header: header,
 	})
 	if err != nil {
-		return fmt.Errorf("error making HTTP request: %w", err)
+		return fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to edit profile, status code: %d", response.Status)
+		return fmt.Errorf("failed to edit profile, status code: %d", response.StatusCode)
 	}
 
 	return nil
@@ -310,7 +305,7 @@ func (c *Client) SendMessage(config *SendMessageConfig) (any, error) {
 		Tts:     config.Tts,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling payload: %w", err)
+		return nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -320,7 +315,7 @@ func (c *Client) SendMessage(config *SendMessageConfig) (any, error) {
 		Header: c.getHeader(&HeaderConfig{}),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error making HTTP request: %w", err)
+		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	defer response.Body.Close()
@@ -332,7 +327,7 @@ func (c *Client) SendMessage(config *SendMessageConfig) (any, error) {
 
 	var data JoinServerResponse
 	if err := json.Unmarshal([]byte(resp), &data); err != nil {
-		return nil, fmt.Errorf("error unmarshaling response: %w", err)
+		return nil, fmt.Errorf("error unmarshaling response: %v", err.Error())
 	}
 
 	return &data, nil
@@ -346,7 +341,7 @@ func (c *Client) IsLocked() (bool, error) {
 		Header: c.getHeader(&HeaderConfig{}),
 	})
 	if err != nil {
-		return true, fmt.Errorf("error making HTTP request: %w", err)
+		return true, fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	defer response.Body.Close()
