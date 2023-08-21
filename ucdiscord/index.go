@@ -5,11 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
 	//"github.com/Implex-ltd/cloudflare-reverse/cloudflarereverse"
 	http "github.com/bogdanfinn/fhttp"
+)
+
+var (
+	dUrl, _ = url.Parse("https://discord.com")
 )
 
 // Create new discord client. Return *Client.
@@ -32,6 +37,11 @@ func NewClient(config *ClientConfig) (*Client, error) {
 
 // Get cookies and x-fingerprint. this function is called by defaut if you set "GetCookies" params ClientConfig.
 func (c *Client) GetCookies() error {
+	c.HttpClient.Client.SetCookies(dUrl, []*http.Cookie{{
+		Name:  "locale",
+		Value: strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0],
+	}})
+
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "GET",
 		Url:    "https://discord.com/api/v9/experiments",
@@ -69,11 +79,6 @@ func (c *Client) GetCookies() error {
 	})*/
 
 	//c.HttpClient.Cookies = append(c.HttpClient.Cookies, cookies...)
-	
-	c.HttpClient.Cookies = append(c.HttpClient.Cookies, &http.Cookie{
-		Name:  "locale",
-		Value: strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0],
-	})
 
 	var fp FingerprintResponse
 	if err := json.Unmarshal([]byte(resp), &fp); err != nil {
@@ -143,9 +148,10 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		}
 
 		header = c.getHeader(&HeaderConfig{
-			IsXtrack: false,
+			IsXtrack: true,
 		})
 
+		header.Del("x-context-properties")
 		header.Add("x-captcha-key", config.CaptchaKey)
 		header.Set("referer", fmt.Sprintf("https://discord.com/invite/%s", config.InviteCode))
 	} else {
@@ -158,7 +164,7 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		}
 
 		header = c.getHeader(&HeaderConfig{
-			IsXtrack: true,
+			IsXtrack: false,
 		})
 
 		header.Del("x-context-properties")
@@ -166,6 +172,7 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		header.Del("x-discord-timezone")
 		header.Del("x-discord-locale")
 		header.Del("x-debug-options")
+		header.Del("x-track")
 	}
 
 	payload, err := json.Marshal(&pl)
