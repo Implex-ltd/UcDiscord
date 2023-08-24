@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	http "github.com/bogdanfinn/fhttp"
-	"strings"
+	_"strings"
 )
 
 func (c *Client) getProperties(isXtrack bool) (string, string) {
@@ -73,8 +73,8 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 		`user-agent`:           {c.HttpClient.Config.BrowserFp.Navigator.UserAgent},
 		`x-context-properties`: {ctx},
 		`x-debug-options`:      {`bugReporterEnabled`},
-		`x-discord-locale`:     {strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0]},
-		`x-discord-timezone`:   {`America/New_York`}, // todo: add country by ip or header language
+		`x-discord-locale`:     {"fr"},           // {strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0]},
+		`x-discord-timezone`:   {`Europe/Paris`}, // todo: add country by ip or header language
 		headerName:             {properties},
 
 		http.HeaderOrderKey: {

@@ -148,10 +148,13 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		}
 
 		header = c.getHeader(&HeaderConfig{
-			IsXtrack: true,
+			IsXtrack: false,
 		})
 
-		header.Del("x-context-properties")
+		header.Set("x-fingerprint", c.xfingerprint)
+		header.Set("x-super-properties", "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImZyLUZSIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNi4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE2LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjIyMjM1MiwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=")
+
+		//header.Del("x-context-properties")
 		header.Add("x-captcha-key", config.CaptchaKey)
 		header.Set("referer", fmt.Sprintf("https://discord.com/invite/%s", config.InviteCode))
 	} else {
@@ -370,4 +373,45 @@ func (c *Client) IsLocked() (bool, error) {
 	}
 
 	return false, nil
+}
+
+func (c *Client) SendFriend(config *JoinConfig) (*JoinServerResponse, error) {
+	if c.WsProperties.D.SessionID == "" {
+		return nil, fmt.Errorf("please connect to the websocket first")
+	}
+
+	payload, err := json.Marshal(&JoinPayload{
+		SessionID: c.WsProperties.D.SessionID,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling payload: %v", err.Error())
+	}
+
+	header := c.getHeader(&HeaderConfig{
+		Join: config,
+	})
+
+	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
+		Method: "POST",
+		Url:    fmt.Sprintf("https://discord.com/api/v9/invites/%s", config.InviteCode),
+		Body:   bytes.NewReader(payload),
+		Header: header,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
+	}
+
+	defer response.Body.Close()
+
+	resp, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var data JoinServerResponse
+	if err := json.Unmarshal([]byte(resp), &data); err != nil {
+		return nil, fmt.Errorf("error unmarshaling response: %v", err.Error())
+	}
+
+	return &data, nil
 }
