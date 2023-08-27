@@ -114,8 +114,9 @@ type ContextProperties struct {
 }
 
 type HeaderConfig struct {
-	Join     *JoinConfig
-	IsXtrack bool
+	Join        *JoinConfig
+	IsAddFriend bool
+	IsXtrack    bool
 }
 
 type FingerprintResponse struct {
@@ -179,4 +180,43 @@ type MessagePayload struct {
 	Nonce   string `json:"nonce"`
 	Tts     bool   `json:"tts"`
 	Flags   int    `json:"flags"`
+}
+
+type ScProperties struct {
+	ClientTrackTimestamp        int64  `json:"client_track_timestamp"`
+	ClientHeartbeatSessionID    string `json:"client_heartbeat_session_id"`
+	TabOpened                   string `json:"tab_opened"`
+	ClientPerformanceMemory     int    `json:"client_performance_memory"`
+	AccessibilityFeatures       int    `json:"accessibility_features"`
+	RenderedLocale              string `json:"rendered_locale"`
+	AccessibilitySupportEnabled bool   `json:"accessibility_support_enabled"`
+	ClientUUID                  string `json:"client_uuid"`
+	ClientSendTimestamp         int64  `json:"client_send_timestamp"`
+}
+
+type ScEvent struct {
+	Type       string       `json:"type"`
+	Properties ScProperties `json:"properties"`
+}
+
+type FriendScience struct {
+	Token  string    `json:"token"`
+	Events []ScEvent `json:"events"`
+}
+
+type FriendConfig struct {
+	Username string
+}
+
+type FriendPayload struct {
+	Username      string `json:"username"`
+	Discriminator any    `json:"discriminator"`
+}
+
+type CaptchaResponse struct {
+	CaptchaKey     []string `json:"captcha_key"`
+	CaptchaSitekey string   `json:"captcha_sitekey"`
+	CaptchaService string   `json:"captcha_service"`
+	CaptchaRqdata  string   `json:"captcha_rqdata"`
+	CaptchaRqtoken string   `json:"captcha_rqtoken"`
 }

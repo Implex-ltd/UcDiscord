@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	http "github.com/bogdanfinn/fhttp"
-	_"strings"
+	_ "strings"
 )
 
 func (c *Client) getProperties(isXtrack bool) (string, string) {
@@ -49,8 +49,13 @@ func (c *Client) getContextProperties(config *JoinConfig) string {
 
 func (c *Client) getHeader(config *HeaderConfig) http.Header {
 	ctx := ""
+
 	if config.Join != nil {
 		ctx = c.getContextProperties(config.Join)
+	}
+
+	if config.IsAddFriend {
+		ctx = "eyJsb2NhdGlvbiI6IkFkZCBGcmllbmQifQ=="
 	}
 
 	headerName, properties := c.getProperties(config.IsXtrack)

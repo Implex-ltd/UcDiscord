@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
 	//"github.com/Implex-ltd/cloudflare-reverse/cloudflarereverse"
@@ -350,6 +351,7 @@ func (c *Client) SendMessage(config *SendMessageConfig) (any, error) {
 	return &data, nil
 }
 
+// Check if token is locked
 func (c *Client) IsLocked() (bool, error) {
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "GET",
@@ -375,43 +377,88 @@ func (c *Client) IsLocked() (bool, error) {
 	return false, nil
 }
 
-func (c *Client) SendFriend(config *JoinConfig) (*JoinServerResponse, error) {
+// Send friend request to a user.
+func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error) {
 	if c.WsProperties.D.SessionID == "" {
-		return nil, fmt.Errorf("please connect to the websocket first")
+		return false, nil, fmt.Errorf("please connect to the websocket first")
 	}
 
-	payload, err := json.Marshal(&JoinPayload{
-		SessionID: c.WsProperties.D.SessionID,
+	payload, err := json.Marshal(&FriendScience{
+		Token: c.WsProperties.D.AnalyticsToken,
+		Events: []ScEvent{
+			{
+				Type: "friends_list_viewed",
+				Properties: ScProperties{
+					ClientTrackTimestamp:        time.Now().UnixNano(),
+					ClientHeartbeatSessionID:    c.WsProperties.D.SessionID,
+					TabOpened:                   "ADD_FRIEND",
+					ClientPerformanceMemory:     0,
+					AccessibilityFeatures:       524544,
+					RenderedLocale:              "fr",
+					AccessibilitySupportEnabled: false,
+					ClientUUID:                  c.WsProperties.D.AuthSessionIDHash,
+					ClientSendTimestamp:         time.Now().Unix(),
+				},
+			},
+		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling payload: %v", err.Error())
+		return false, nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header := c.getHeader(&HeaderConfig{
-		Join: config,
+	scresponse, err := c.HttpClient.Do(cleanhttp.RequestOption{
+		Method: "POST",
+		Url:    "https://discord.com/api/v9/science",
+		Body:   bytes.NewReader(payload),
+		Header: c.getHeader(&HeaderConfig{}),
 	})
+	if err != nil {
+		return false, nil, fmt.Errorf("error making HTTP request: %v", err.Error())
+	}
+
+	defer scresponse.Body.Close()
+
+	payload, err = json.Marshal(&FriendPayload{
+		Username: config.Username,
+	})
+	if err != nil {
+		return false, nil, fmt.Errorf("error marshaling payload: %v", err.Error())
+	}
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "POST",
-		Url:    fmt.Sprintf("https://discord.com/api/v9/invites/%s", config.InviteCode),
+		Url:    "https://discord.com/api/v9/users/@me/relationships",
 		Body:   bytes.NewReader(payload),
-		Header: header,
+		Header: c.getHeader(&HeaderConfig{
+			IsAddFriend: true,
+		}),
 	})
 	if err != nil {
-		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
+		return false, nil, fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
 
 	defer response.Body.Close()
 
-	resp, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
+	switch response.StatusCode {
+	case 204:
+		return true, nil, nil
+	case 400:
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			return false, nil, err
+		}
 
-	var data JoinServerResponse
-	if err := json.Unmarshal([]byte(resp), &data); err != nil {
-		return nil, fmt.Errorf("error unmarshaling response: %v", err.Error())
-	}
+		fmt.Println(string(body))
 
-	return &data, nil
+		var c CaptchaResponse
+		if err := json.Unmarshal(body, &c); err != nil {
+			return false, nil, err
+		}
+
+		return false, &c, fmt.Errorf("captcha spawn")
+	case 403:
+		return false, nil, fmt.Errorf("user not found")
+	default:
+		return false, nil, fmt.Errorf("unknown status: %d", response.StatusCode)
+	}
 }
