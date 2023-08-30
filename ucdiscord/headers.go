@@ -7,13 +7,29 @@ import (
 	_ "strings"
 )
 
-func (c *Client) getProperties(isXtrack bool) (string, string) {
-	build := 9999
-	headerName := "x-track"
+const (
+	PROPERTYPE_XTRACK  = 0
+	PROPERTYPE_SUPER   = 1
+	PROPERTYPE_CONTEXT = 2
+)
 
-	if !isXtrack {
+func (c *Client) getProperties(ProperType int) (string, string) {
+	build := 0
+	headerName := ""
+
+	switch ProperType {
+	case PROPERTYPE_CONTEXT:
 		build = c.BuildNumber
 		headerName = "x-context-properties"
+		break
+	case PROPERTYPE_SUPER:
+		build = c.BuildNumber
+		headerName = "x-super-properties"
+		break
+	case PROPERTYPE_XTRACK:
+		build = 9999
+		headerName = "x-track"
+		break
 	}
 
 	payload, _ := json.Marshal(&XProperties{
@@ -26,8 +42,8 @@ func (c *Client) getProperties(isXtrack bool) (string, string) {
 		OsVersion:              c.UaInfo.OSVersion,
 		Referrer:               "",
 		ReferringDomain:        "",
-		ReferrerCurrent:        "https://discord.com/",
-		ReferringDomainCurrent: "discord.com",
+		ReferrerCurrent:        "",
+		ReferringDomainCurrent: "",
 		ReleaseChannel:         "stable",
 		ClientBuildNumber:      build,
 		ClientEventSource:      nil,
@@ -56,9 +72,10 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 
 	if config.IsAddFriend {
 		ctx = "eyJsb2NhdGlvbiI6IkFkZCBGcmllbmQifQ=="
+
 	}
 
-	headerName, properties := c.getProperties(config.IsXtrack)
+	headerName, properties := c.getProperties(config.ProperType)
 
 	return http.Header{
 		`accept`:               {`*/*`},
