@@ -31,7 +31,7 @@ func TestClient_SendFriend(t *testing.T) {
 
 	// Create discord session
 	client, err := discord.NewClient(&discord.ClientConfig{
-		//Token:       "MTE0NjU4NTk4MDA5MDk5NDczOA.G9mS8b.rfnoKAdQsBNZJVc4hGRzYokf2lFbYQAZX5vAeg",
+		Token:       "MTE0NjU4NTk4MDA5MDk5NDczOA.G9mS8b.rfnoKAdQsBNZJVc4hGRzYokf2lFbYQAZX5vAeg",
 		GetCookies:  true,
 		BuildNumber: 224244,
 		Client:      http,
@@ -41,10 +41,11 @@ func TestClient_SendFriend(t *testing.T) {
 		panic(err)
 	}
 
-	client.WsConnect()
+	r, _ :=  client.WsConnect()
+	fmt.Println(r)
 
 	type args struct {
-		config *discord.RegisterConfig
+		config *discord.FriendConfig
 	}
 
 	tests := []struct {
@@ -55,10 +56,8 @@ func TestClient_SendFriend(t *testing.T) {
 		{
 			name: "add friend",
 			args: args{
-				config: &discord.RegisterConfig{
+				config: &discord.FriendConfig{
 					Username: "hcaptcha",
-					InviteCode: "uwu",
-					CaptchaKey: "bop",
 				},
 			},
 			c: client,
@@ -67,8 +66,8 @@ func TestClient_SendFriend(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.c.Register(tt.args.config)
-			fmt.Println(got, err)
+			got, got1, err := tt.c.SendFriend(tt.args.config)
+			fmt.Println(got, got1, err)
 		})
 	}
 }
