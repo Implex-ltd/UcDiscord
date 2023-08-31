@@ -206,6 +206,8 @@ type FriendScience struct {
 
 type FriendConfig struct {
 	Username string
+	Captcha  string
+	RqToken  string
 }
 
 type FriendPayload struct {

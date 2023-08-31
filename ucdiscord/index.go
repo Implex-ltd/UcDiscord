@@ -425,13 +425,20 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 		return false, nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
+	header := c.getHeader(&HeaderConfig{
+		IsAddFriend: true,
+	})
+
+	if config.Captcha != "" && config.RqToken != "" {
+		header.Add("x-captcha-key", config.Captcha)
+		header.Add("x-captcha-rqtoken", config.RqToken)
+	}
+
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "POST",
 		Url:    "https://discord.com/api/v9/users/@me/relationships",
 		Body:   bytes.NewReader(payload),
-		Header: c.getHeader(&HeaderConfig{
-			IsAddFriend: true,
-		}),
+		Header: header,
 	})
 	if err != nil {
 		return false, nil, fmt.Errorf("error making HTTP request: %v", err.Error())
@@ -447,8 +454,6 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 		if err != nil {
 			return false, nil, err
 		}
-
-		fmt.Println(string(body))
 
 		var c CaptchaResponse
 		if err := json.Unmarshal(body, &c); err != nil {
