@@ -29,7 +29,7 @@ func TestClient_SendFriend(t *testing.T) {
 
 	// Create discord session
 	client, err := discord.NewClient(&discord.ClientConfig{
-		Token:       "MTE0NDU2MzkzNDMzOTI4OTEzMQ.G6EYO_.6c2_gnDIsi4Pys2vpbIsEpvDLwB3ImUwdmGxI0",
+		Token:       "MTE0NjU4NTk4MDA5MDk5NDczOA.G9mS8b.rfnoKAdQsBNZJVc4hGRzYokf2lFbYQAZX5vAeg",
 		GetCookies:  true,
 		BuildNumber: 00000,
 		Client:      http,

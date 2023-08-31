@@ -3,8 +3,10 @@ package discord
 import (
 	"encoding/base64"
 	"encoding/json"
-	http "github.com/bogdanfinn/fhttp"
+	"strings"
 	_ "strings"
+
+	http "github.com/bogdanfinn/fhttp"
 )
 
 const (
@@ -49,7 +51,7 @@ func (c *Client) getProperties(ProperType int) (string, string) {
 		ClientEventSource:      nil,
 	})
 
-	return headerName, addBase64Padding(base64.RawStdEncoding.EncodeToString(payload))
+	return headerName, strings.ReplaceAll(addBase64Padding(base64.RawStdEncoding.EncodeToString(payload)), "=", "")
 }
 
 func (c *Client) getContextProperties(config *JoinConfig) string {

@@ -125,9 +125,10 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 			ProperType: PROPERTYPE_SUPER,
 		})
 		
-		header.Add("x-captcha-key", config.CaptchaKey)
 		header.Del("x-context-properties")
 		header.Del("authorization")
+
+		header.Add("x-captcha-key", config.CaptchaKey)
 		header.Set("referer", fmt.Sprintf("https://discord.com/invite/%s", config.InviteCode))
 	} else {
 		pl = RegisterSimplePayload{
@@ -398,6 +399,8 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 		header.Add("x-captcha-key", config.Captcha)
 		header.Add("x-captcha-rqtoken", config.RqToken)
 	}
+
+	fmt.Println(header)
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "POST",
