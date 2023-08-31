@@ -3,7 +3,6 @@ package discord
 import (
 	"encoding/base64"
 	"encoding/json"
-	"strings"
 
 	http "github.com/bogdanfinn/fhttp"
 )
@@ -50,7 +49,7 @@ func (c *Client) getProperties(ProperType int) (string, string) {
 		ClientEventSource:      nil,
 	})
 
-	return headerName, strings.ReplaceAll(addBase64Padding(base64.RawStdEncoding.EncodeToString(payload)), "=", "") + "=="
+	return headerName, addBase64Padding(base64.RawStdEncoding.EncodeToString(payload))
 }
 
 func (c *Client) getContextProperties(config *JoinConfig) string {
@@ -78,15 +77,15 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 
 	headerName, properties := c.getProperties(config.ProperType)
 
-	return http.Header{
+	head := http.Header{
 		`accept`:               {`*/*`},
 		`accept-encoding`:      {`gzip, deflate, br`},
 		`accept-language`:      {c.HttpClient.BaseHeader.AcceptLanguage},
-		`authorization`:        {c.Config.Token},
+		
 		`content-type`:         {`application/json`},
 		`cookie`:               {c.HttpClient.BaseHeader.Cookies},
 		`origin`:               {"https://discord.com"},
-		`referer`:              {`https://discord.com`},
+		`Referer`:              {`https://discord.com`},
 		`sec-ch-ua`:            {c.HttpClient.BaseHeader.SecChUa},
 		`sec-ch-ua-mobile`:     {c.HttpClient.BaseHeader.SecChUaMobile},
 		`sec-ch-ua-platform`:   {c.HttpClient.BaseHeader.SecChUaPlatform},
@@ -94,7 +93,6 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 		`sec-fetch-mode`:       {`cors`},
 		`sec-fetch-site`:       {`same-origin`},
 		`user-agent`:           {c.HttpClient.Config.BrowserFp.Navigator.UserAgent},
-		`x-context-properties`: {ctx},
 		`x-debug-options`:      {`bugReporterEnabled`},
 		`x-discord-locale`:     {"fr"},           // {strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0]},
 		`x-discord-timezone`:   {`Europe/Paris`}, // todo: add country by ip or header language
@@ -125,4 +123,14 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 			headerName,
 		},
 	}
+
+	if ctx != "" {
+		head.Add("x-context-properties", ctx)
+	}
+
+	if c.Config.Token != "" {
+		head.Add("authorization", c.Config.Token)
+	}
+
+	return head
 }
