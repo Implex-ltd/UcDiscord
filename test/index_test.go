@@ -31,7 +31,7 @@ func TestClient_SendFriend(t *testing.T) {
 
 	// Create discord session
 	client, err := discord.NewClient(&discord.ClientConfig{
-		Token:       "MTE0NjU4NTk4MDA5MDk5NDczOA.G9mS8b.rfnoKAdQsBNZJVc4hGRzYokf2lFbYQAZX5vAeg",
+		Token:       "MTE0NjgzNDY5NTc3NTA2NDA3NQ.G9edxF.1fuXWK-QGGqb6tz0pMNoVttOPCs7ncaSAFTmFA",
 		GetCookies:  true,
 		BuildNumber: 224244,
 		Client:      http,
@@ -41,8 +41,7 @@ func TestClient_SendFriend(t *testing.T) {
 		panic(err)
 	}
 
-	r, _ :=  client.WsConnect()
-	fmt.Println(r)
+	client.WsConnect()
 
 	type args struct {
 		config *discord.FriendConfig

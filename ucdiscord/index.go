@@ -11,6 +11,7 @@ import (
 
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
 	http "github.com/bogdanfinn/fhttp"
+	"github.com/google/uuid"
 )
 
 var (
@@ -55,7 +56,7 @@ func (c *Client) GetCookies() error {
 	if err != nil {
 		return err
 	}
-	
+
 	var fp FingerprintResponse
 	if err := json.Unmarshal([]byte(resp), &fp); err != nil {
 		return fmt.Errorf("cant unmarshal fingerpint: %v", err.Error())
@@ -354,11 +355,103 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 		Token: c.WsProperties.D.AnalyticsToken,
 		Events: []ScEvent{
 			{
+				Type: "app_ui_viewed",
+				Properties: ScProperties{
+					ClientTrackTimestamp:        time.Now().UnixNano() / int64(time.Millisecond),
+					ClientHeartbeatSessionID:    c.WsProperties.D.SessionID,
+					TotalCompressedByteSize:     10196255,
+					TotalUncompressedByteSize:   45546783,
+					TotalTransferByteSize:       0,
+					JSCompressedByteSize:        6291974,
+					JSUncompressedByteSize:      28751914,
+					JSTransferByteSize:          0,
+					CSSCompressedByteSize:       513801,
+					CSSUncompressedByteSize:     2806741,
+					CSSTransferByteSize:         0,
+					LoadID:                      uuid.NewString(),
+					ScreenName:                  "friends",
+					DurationMSSinceAppOpened:    1073,
+					ClientPerformanceMemory:     0,
+					AccessibilityFeatures:       524544,
+					RenderedLocale:              "fr",
+					AccessibilitySupportEnabled: false,
+					ClientUUID:                  c.WsProperties.D.AuthSessionIDHash,
+					ClientSendTimestamp:         time.Now().UnixNano() / int64(time.Millisecond),
+				},
+			},
+			{
+				Type: "ready_payload_received",
+				Properties: ScProperties{
+					ClientTrackTimestamp:           time.Now().UnixNano() / int64(time.Millisecond),
+					ClientHeartbeatSessionID:       c.WsProperties.D.SessionID,
+					CompressedByteSize:             13135,
+					UncompressedByteSize:           46105,
+					CompressionAlgorithm:           "zlib-stream",
+					PackingAlgorithm:               "json",
+					UnpackDurationMS:               0,
+					IdentifyTotalServerDurationMS:  201,
+					IdentifyAPIDurationMS:          100,
+					IdentifyGuildsDurationMS:       1,
+					NumGuilds:                      1,
+					NumGuildChannels:               5,
+					NumGuildCategoryChannels:       2,
+					PresencesSize:                  2,
+					UsersSize:                      223,
+					ReadStatesSize:                 187,
+					PrivateChannelsSize:            2,
+					UserSettingsSize:               18,
+					ExperimentsSize:                39916,
+					UserGuildSettingsSize:          42,
+					RelationshipsSize:              2,
+					RemainingDataSize:              2947,
+					GuildChannelsSize:              939,
+					GuildMembersSize:               230,
+					GuildPresencesSize:             2,
+					GuildRolesSize:                 209,
+					GuildEmojisSize:                4,
+					GuildThreadsSize:               4,
+					GuildStickersSize:              4,
+					GuildEventsSize:                4,
+					GuildFeaturesSize:              4,
+					GuildRemainingDataSize:         3124,
+					SizeMetricsDurationMS:          0,
+					DurationMSSinceIdentifyStart:   305,
+					DurationMSSinceConnectionStart: 306,
+					DurationMSSinceEmitStart:       22,
+					IsReconnect:                    false,
+					IsFastConnect:                  false,
+					DidForceClearGuildHashes:       false,
+					IdentifyUncompressedByteSize:   832,
+					IdentifyCompressedByteSize:     481,
+					HadCacheAtStartup:              false,
+					UsedCacheAtStartup:             false,
+					AccessibilityFeatures:          524544,
+					RenderedLocale:                 "fr",
+					AccessibilitySupportEnabled:    false,
+					ClientUUID:                     c.WsProperties.D.AuthSessionIDHash,
+					ClientSendTimestamp:            time.Now().UnixNano() / int64(time.Millisecond),
+				},
+			},
+			{
 				Type: "friends_list_viewed",
 				Properties: ScProperties{
 					ClientTrackTimestamp:        time.Now().UnixNano() / int64(time.Millisecond),
 					ClientHeartbeatSessionID:    c.WsProperties.D.SessionID,
 					TabOpened:                   "ADD_FRIEND",
+					ClientPerformanceMemory:     0,
+					AccessibilityFeatures:       524544,
+					RenderedLocale:              "fr",
+					AccessibilitySupportEnabled: false,
+					ClientUUID:                  c.WsProperties.D.AuthSessionIDHash,
+					ClientSendTimestamp:         time.Now().UnixNano() / int64(time.Millisecond),
+				},
+			},
+			{
+				Type: "app_notice_viewed",
+				Properties: ScProperties{
+					ClientTrackTimestamp:        time.Now().UnixNano() / int64(time.Millisecond),
+					ClientHeartbeatSessionID:    c.WsProperties.D.SessionID,
+					TabOpened:                   "UNCLAIMED_ACCOUNT",
 					ClientPerformanceMemory:     0,
 					AccessibilityFeatures:       524544,
 					RenderedLocale:              "fr",
