@@ -116,7 +116,7 @@ type ContextProperties struct {
 type HeaderConfig struct {
 	Join        *JoinConfig
 	IsAddFriend bool
-	ProperType  int
+	IsXtrack    bool
 }
 
 type FingerprintResponse struct {
@@ -206,8 +206,6 @@ type FriendScience struct {
 
 type FriendConfig struct {
 	Username string
-	Captcha  string
-	RqToken  string
 }
 
 type FriendPayload struct {

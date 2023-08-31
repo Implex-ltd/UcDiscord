@@ -3,33 +3,18 @@ package discord
 import (
 	"encoding/base64"
 	"encoding/json"
+	_ "strings"
 
 	http "github.com/bogdanfinn/fhttp"
 )
 
-const (
-	PROPERTYPE_XTRACK  = 0
-	PROPERTYPE_SUPER   = 1
-	PROPERTYPE_CONTEXT = 2
-)
+func (c *Client) getProperties(isXtrack bool) (string, string) {
+	build := 9999
+	headerName := "x-track"
 
-func (c *Client) getProperties(ProperType int) (string, string) {
-	build := 0
-	headerName := ""
-
-	switch ProperType {
-	case PROPERTYPE_CONTEXT:
+	if !isXtrack {
 		build = c.BuildNumber
 		headerName = "x-context-properties"
-		break
-	case PROPERTYPE_SUPER:
-		build = c.BuildNumber
-		headerName = "x-super-properties"
-		break
-	case PROPERTYPE_XTRACK:
-		build = 9999
-		headerName = "x-track"
-		break
 	}
 
 	payload, _ := json.Marshal(&XProperties{
@@ -42,8 +27,8 @@ func (c *Client) getProperties(ProperType int) (string, string) {
 		OsVersion:              c.UaInfo.OSVersion,
 		Referrer:               "",
 		ReferringDomain:        "",
-		ReferrerCurrent:        "",
-		ReferringDomainCurrent: "",
+		ReferrerCurrent:        "https://discord.com/",
+		ReferringDomainCurrent: "discord.com",
 		ReleaseChannel:         "stable",
 		ClientBuildNumber:      build,
 		ClientEventSource:      nil,
@@ -72,20 +57,19 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 
 	if config.IsAddFriend {
 		ctx = "eyJsb2NhdGlvbiI6IkFkZCBGcmllbmQifQ=="
-
 	}
 
-	headerName, properties := c.getProperties(config.ProperType)
+	headerName, properties := c.getProperties(config.IsXtrack)
 
-	head := http.Header{
+	return http.Header{
 		`accept`:               {`*/*`},
 		`accept-encoding`:      {`gzip, deflate, br`},
 		`accept-language`:      {c.HttpClient.BaseHeader.AcceptLanguage},
-		
+		`authorization`:        {c.Config.Token},
 		`content-type`:         {`application/json`},
 		`cookie`:               {c.HttpClient.BaseHeader.Cookies},
 		`origin`:               {"https://discord.com"},
-		`Referer`:              {`https://discord.com`},
+		`referer`:              {`https://discord.com`},
 		`sec-ch-ua`:            {c.HttpClient.BaseHeader.SecChUa},
 		`sec-ch-ua-mobile`:     {c.HttpClient.BaseHeader.SecChUaMobile},
 		`sec-ch-ua-platform`:   {c.HttpClient.BaseHeader.SecChUaPlatform},
@@ -93,6 +77,7 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 		`sec-fetch-mode`:       {`cors`},
 		`sec-fetch-site`:       {`same-origin`},
 		`user-agent`:           {c.HttpClient.Config.BrowserFp.Navigator.UserAgent},
+		`x-context-properties`: {ctx},
 		`x-debug-options`:      {`bugReporterEnabled`},
 		`x-discord-locale`:     {"fr"},           // {strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0]},
 		`x-discord-timezone`:   {`Europe/Paris`}, // todo: add country by ip or header language
@@ -123,14 +108,4 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 			headerName,
 		},
 	}
-
-	if ctx != "" {
-		head.Add("x-context-properties", ctx)
-	}
-
-	if c.Config.Token != "" {
-		head.Add("authorization", c.Config.Token)
-	}
-
-	return head
 }
