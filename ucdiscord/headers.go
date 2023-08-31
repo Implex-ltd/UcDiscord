@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"strings"
-	_ "strings"
 
 	http "github.com/bogdanfinn/fhttp"
 )
@@ -51,7 +50,7 @@ func (c *Client) getProperties(ProperType int) (string, string) {
 		ClientEventSource:      nil,
 	})
 
-	return headerName, strings.ReplaceAll(addBase64Padding(base64.RawStdEncoding.EncodeToString(payload)), "=", "")
+	return headerName, strings.ReplaceAll(addBase64Padding(base64.RawStdEncoding.EncodeToString(payload)), "=", "") + "=="
 }
 
 func (c *Client) getContextProperties(config *JoinConfig) string {
