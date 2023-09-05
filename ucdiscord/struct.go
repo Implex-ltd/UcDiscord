@@ -23,9 +23,10 @@ type JoinPayload struct {
 }
 
 type RegisterConfig struct {
-	Username   string
-	InviteCode string
-	CaptchaKey string
+	Username         string
+	InviteCode       string
+	CaptchaKey       string
+	CustomProperties string
 }
 
 type RegisterSimplePayload struct {
@@ -183,6 +184,10 @@ type MessagePayload struct {
 }
 
 type ScProperties struct {
+	CaptchaEventName               string `json:"captcha_event_name"`
+	CaptchaFlowKey                 string `json:"captcha_flow_key"`
+	CaptchaService                 string `json:"captcha_service"`
+	SiteKey                        string `json:"sitekey"`
 	ClientTrackTimestamp           int64  `json:"client_track_timestamp"`
 	ClientHeartbeatSessionID       string `json:"client_heartbeat_session_id"`
 	TotalCompressedByteSize        int64  `json:"total_compressed_byte_size,omitempty"`

@@ -12,7 +12,7 @@ go get -u github.com/Implex-ltd/ucdiscord/ucdiscord
 $env:GOPRIVATE="github.com/Implex-ltd/"
 $env:GOSUMDB="off"
 set GOPRIVATE=github.com/Implex-ltd/ucdiscord/ucdiscord
-go get -u github.com/Implex-ltd/ucdiscord/ucdiscord@V
+go get -u github.com/Implex-ltd/ucdiscord/ucdiscord@version
 ```
 
 ## Quick start

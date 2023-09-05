@@ -127,9 +127,11 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		})
 
 		header.Set("x-fingerprint", c.xfingerprint)
-		header.Set("x-super-properties", "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImZyLUZSIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE1LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjIyNDI0NCwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=")
 
-		//header.Del("x-context-properties")
+		if config.CustomProperties == "" {
+			header.Set("x-super-properties", "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImZyLUZSIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE1LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjIyNDI0NCwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=")
+		}
+
 		header.Add("x-captcha-key", config.CaptchaKey)
 		header.Set("referer", fmt.Sprintf("https://discord.com/invite/%s", config.InviteCode))
 	} else {
@@ -466,8 +468,6 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 		return false, nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	fmt.Println(string(payload))
-
 	scresponse, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "POST",
 		Url:    "https://discord.com/api/v9/science",
@@ -528,4 +528,49 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 	default:
 		return false, nil, fmt.Errorf("unknown status: %d", response.StatusCode)
 	}
+}
+
+func (c *Client) SendCaptchaEvent(SiteKey string) error {
+	if c.WsProperties.D.SessionID == "" {
+		return fmt.Errorf("please connect to the websocket first")
+	}
+
+	payload, err := json.Marshal(&FriendScience{
+		Token: c.WsProperties.D.AnalyticsToken,
+		Events: []ScEvent{
+			{
+				Type: "captcha_event",
+				Properties: ScProperties{
+					AccessibilityFeatures:       256,
+					AccessibilitySupportEnabled: true,
+					CaptchaEventName:            "verify",
+					CaptchaFlowKey:              "",
+					CaptchaService:              "hcaptcha",
+					ClientPerformanceMemory:     0,
+					ClientSendTimestamp:         time.Now().UnixNano() / int64(time.Millisecond),
+					ClientTrackTimestamp:        time.Now().UnixNano() / int64(time.Millisecond),
+					ClientUUID:                  c.WsProperties.D.AuthSessionIDHash,
+					RenderedLocale:              c.HttpClient.Config.BrowserFp.Navigator.Language,
+					SiteKey:                     SiteKey,
+				},
+			},
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("error marshaling payload: %v", err.Error())
+	}
+
+	scresponse, err := c.HttpClient.Do(cleanhttp.RequestOption{
+		Method: "POST",
+		Url:    "https://discord.com/api/v9/science",
+		Body:   bytes.NewReader(payload),
+		Header: c.getHeader(&HeaderConfig{}),
+	})
+	if err != nil {
+		return fmt.Errorf("error making HTTP request: %v", err.Error())
+	}
+
+	defer scresponse.Body.Close()
+
+	return nil
 }
