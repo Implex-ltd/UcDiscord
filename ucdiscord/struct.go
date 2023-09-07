@@ -118,6 +118,7 @@ type HeaderConfig struct {
 	Join        *JoinConfig
 	IsAddFriend bool
 	IsXtrack    bool
+	IsSuper     bool
 }
 
 type FingerprintResponse struct {

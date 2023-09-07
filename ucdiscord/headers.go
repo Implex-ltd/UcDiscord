@@ -3,16 +3,27 @@ package discord
 import (
 	"encoding/base64"
 	"encoding/json"
+	"net/url"
 	_ "strings"
 
 	http "github.com/bogdanfinn/fhttp"
 )
 
-func (c *Client) getProperties(isXtrack bool) (string, string) {
-	build := 9999
-	headerName := "x-track"
+var (
+	u, _ = url.Parse("https://discord.com")
+)
 
-	if !isXtrack {
+func (c *Client) getProperties(config *HeaderConfig) (string, string) {
+	var build int
+	var headerName string
+
+	if config.IsXtrack {
+		build = 9999
+		headerName = "x-track"
+	} else if config.IsSuper {
+		build = c.BuildNumber
+		headerName = "x-super-properties"
+	} else {
 		build = c.BuildNumber
 		headerName = "x-context-properties"
 	}
@@ -48,40 +59,29 @@ func (c *Client) getContextProperties(config *JoinConfig) string {
 	return addBase64Padding(base64.RawStdEncoding.EncodeToString(payload))
 }
 
-func (c *Client) getHeader(config *HeaderConfig) http.Header {
-	ctx := ""
+func (c *Client) GetHeader(config *HeaderConfig) http.Header {
+	headerName, properties := c.getProperties(config)
 
-	if config.Join != nil {
-		ctx = c.getContextProperties(config.Join)
-	}
-
-	if config.IsAddFriend {
-		ctx = "eyJsb2NhdGlvbiI6IkFkZCBGcmllbmQifQ=="
-	}
-
-	headerName, properties := c.getProperties(config.IsXtrack)
-
-	return http.Header{
-		`accept`:               {`*/*`},
-		`accept-encoding`:      {`gzip, deflate, br`},
-		`accept-language`:      {c.HttpClient.BaseHeader.AcceptLanguage},
-		`authorization`:        {c.Config.Token},
-		`content-type`:         {`application/json`},
-		`cookie`:               {c.HttpClient.BaseHeader.Cookies},
-		`origin`:               {"https://discord.com"},
-		`referer`:              {`https://discord.com`},
-		`sec-ch-ua`:            {c.HttpClient.BaseHeader.SecChUa},
-		`sec-ch-ua-mobile`:     {c.HttpClient.BaseHeader.SecChUaMobile},
-		`sec-ch-ua-platform`:   {c.HttpClient.BaseHeader.SecChUaPlatform},
-		`sec-fetch-dest`:       {`empty`},
-		`sec-fetch-mode`:       {`cors`},
-		`sec-fetch-site`:       {`same-origin`},
-		`user-agent`:           {c.HttpClient.Config.BrowserFp.Navigator.UserAgent},
-		`x-context-properties`: {ctx},
-		`x-debug-options`:      {`bugReporterEnabled`},
-		`x-discord-locale`:     {"fr"},           // {strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0]},
-		`x-discord-timezone`:   {`Europe/Paris`}, // todo: add country by ip or header language
-		headerName:             {properties},
+	h := http.Header{
+		`accept`:             {`*/*`},
+		`accept-encoding`:    {`gzip, deflate, br`},
+		`accept-language`:    {c.HttpClient.BaseHeader.AcceptLanguage},
+		`authorization`:      {c.Config.Token},
+		`content-type`:       {`application/json`},
+		`cookie`:             {c.HttpClient.FormatCookies(u)},
+		`origin`:             {"https://discord.com"},
+		`referer`:            {`https://discord.com`},
+		`sec-ch-ua`:          {c.HttpClient.BaseHeader.SecChUa},
+		`sec-ch-ua-mobile`:   {c.HttpClient.BaseHeader.SecChUaMobile},
+		`sec-ch-ua-platform`: {c.HttpClient.BaseHeader.SecChUaPlatform},
+		`sec-fetch-dest`:     {`empty`},
+		`sec-fetch-mode`:     {`cors`},
+		`sec-fetch-site`:     {`same-origin`},
+		`user-agent`:         {c.HttpClient.Config.BrowserFp.Navigator.UserAgent},
+		`x-debug-options`:    {`bugReporterEnabled`},
+		`x-discord-locale`:   {"fr"},           // {strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0]},
+		`x-discord-timezone`: {`Europe/Paris`}, // todo: add country by ip or header language
+		headerName:           {properties},
 
 		http.HeaderOrderKey: {
 			`authority`,
@@ -108,4 +108,14 @@ func (c *Client) getHeader(config *HeaderConfig) http.Header {
 			headerName,
 		},
 	}
+
+	if config.Join != nil {
+		h.Set("x-context-properties", c.getContextProperties(config.Join))
+	}
+
+	if config.IsAddFriend {
+		h.Set("x-context-properties", "eyJsb2NhdGlvbiI6IkFkZCBGcmllbmQifQ==")
+	}
+
+	return h
 }

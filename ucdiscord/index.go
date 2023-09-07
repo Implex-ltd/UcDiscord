@@ -44,7 +44,7 @@ func (c *Client) GetCookies() error {
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "GET",
 		Url:    "https://discord.com/api/v9/experiments",
-		Header: c.getHeader(&HeaderConfig{}),
+		Header: c.GetHeader(&HeaderConfig{}),
 	})
 	if err != nil {
 		return fmt.Errorf("error making HTTP request: %v", err.Error())
@@ -56,6 +56,8 @@ func (c *Client) GetCookies() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(response.Header)
 
 	var fp FingerprintResponse
 	if err := json.Unmarshal([]byte(resp), &fp); err != nil {
@@ -79,7 +81,7 @@ func (c *Client) JoinGuild(config *JoinConfig) (*JoinServerResponse, error) {
 		return nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header := c.getHeader(&HeaderConfig{
+	header := c.GetHeader(&HeaderConfig{
 		Join: config,
 	})
 
@@ -122,14 +124,16 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 			UniqueUsernameRegistration: true,
 		}
 
-		header = c.getHeader(&HeaderConfig{
+		header = c.GetHeader(&HeaderConfig{
 			IsXtrack: false,
+			IsSuper:  true,
 		})
 
 		header.Set("x-fingerprint", c.xfingerprint)
 
 		if config.CustomProperties == "" {
-			header.Set("x-super-properties", "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImZyLUZSIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE1LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjIyNDI0NCwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=")
+			header.Del("x-context-properties")
+			header.Add("x-super-properties", "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImZyLUZSIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE1LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjIyNDI0NCwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=")
 		}
 
 		header.Add("x-captcha-key", config.CaptchaKey)
@@ -143,7 +147,7 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 			UniqueUsernameRegistration: true,
 		}
 
-		header = c.getHeader(&HeaderConfig{
+		header = c.GetHeader(&HeaderConfig{
 			IsXtrack: false,
 		})
 
@@ -168,6 +172,8 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		Body:   bytes.NewReader(payload),
 		Header: header,
 	})
+
+	fmt.Println(string(payload), header)
 
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
@@ -207,7 +213,7 @@ func (c *Client) SetAvatar(config *AvatarConfig) error {
 
 	payload := fmt.Sprintf(`{"avatar": "%s"}`, pfp)
 
-	header := c.getHeader(&HeaderConfig{})
+	header := c.GetHeader(&HeaderConfig{})
 	header.Set("referer", "https://discord.com/channels/@me")
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -238,7 +244,7 @@ func (c *Client) SetBirth(config *EditBirthConfig) error {
 		return fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header := c.getHeader(&HeaderConfig{})
+	header := c.GetHeader(&HeaderConfig{})
 	header.Set("referer", "https://discord.com/channels/@me")
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -269,7 +275,7 @@ func (c *Client) SetProfil(config *EditProfilConfig) error {
 		return fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header := c.getHeader(&HeaderConfig{})
+	header := c.GetHeader(&HeaderConfig{})
 	header.Set("referer", "https://discord.com/channels/@me")
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -302,7 +308,7 @@ func (c *Client) SendMessage(config *SendMessageConfig) (any, error) {
 		Method: "POST",
 		Url:    fmt.Sprintf("https://discord.com/api/v9/channels/%s/messages", config.ChannelID),
 		Body:   bytes.NewReader(payload),
-		Header: c.getHeader(&HeaderConfig{}),
+		Header: c.GetHeader(&HeaderConfig{}),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
@@ -328,7 +334,7 @@ func (c *Client) IsLocked() (bool, error) {
 		Method: "GET",
 		Url:    "https://discord.com/api/v9/users/@me/affinities/users",
 		Body:   nil,
-		Header: c.getHeader(&HeaderConfig{}),
+		Header: c.GetHeader(&HeaderConfig{}),
 	})
 	if err != nil {
 		return true, fmt.Errorf("error making HTTP request: %v", err.Error())
@@ -472,7 +478,7 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 		Method: "POST",
 		Url:    "https://discord.com/api/v9/science",
 		Body:   bytes.NewReader(payload),
-		Header: c.getHeader(&HeaderConfig{}),
+		Header: c.GetHeader(&HeaderConfig{}),
 	})
 	if err != nil {
 		return false, nil, fmt.Errorf("error making HTTP request: %v", err.Error())
@@ -487,7 +493,7 @@ func (c *Client) SendFriend(config *FriendConfig) (bool, *CaptchaResponse, error
 		return false, nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header := c.getHeader(&HeaderConfig{
+	header := c.GetHeader(&HeaderConfig{
 		IsAddFriend: true,
 	})
 
@@ -564,7 +570,7 @@ func (c *Client) SendCaptchaEvent(SiteKey string) error {
 		Method: "POST",
 		Url:    "https://discord.com/api/v9/science",
 		Body:   bytes.NewReader(payload),
-		Header: c.getHeader(&HeaderConfig{}),
+		Header: c.GetHeader(&HeaderConfig{}),
 	})
 	if err != nil {
 		return fmt.Errorf("error making HTTP request: %v", err.Error())
