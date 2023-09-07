@@ -2,7 +2,6 @@ package discord
 
 import (
 	"fmt"
-	"net/url"
 
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
 	"github.com/Implex-ltd/fingerprint-client/fpclient"
@@ -46,7 +45,5 @@ func TestClient_Cookies(t *testing.T) {
 		IsSuper:  true,
 	})
 
-	u, _ := url.Parse("https://discord.com")
-	fmt.Println(client.HttpClient.FormatCookies(u))
 	fmt.Println(header)
 }

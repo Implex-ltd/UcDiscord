@@ -57,8 +57,6 @@ func (c *Client) GetCookies() error {
 		return err
 	}
 
-	fmt.Println(response.Header)
-
 	var fp FingerprintResponse
 	if err := json.Unmarshal([]byte(resp), &fp); err != nil {
 		return fmt.Errorf("cant unmarshal fingerpint: %v", err.Error())
