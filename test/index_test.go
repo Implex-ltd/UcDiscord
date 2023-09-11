@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestClient_SendFriend(t *testing.T) {
+func TestClient_Register(t *testing.T) {
 	// Load fingerprint
 	fp, err := fpclient.LoadFingerprint(&fpclient.LoadingConfig{
 		FilePath: "./chrome.json",
@@ -18,12 +18,12 @@ func TestClient_SendFriend(t *testing.T) {
 	if err != nil {
 		panic(err)
 
-
 	}
 
 	// Load HTTP client
 	http, err := cleanhttp.NewCleanHttpClient(&cleanhttp.Config{
 		BrowserFp: fp,
+		Log:       true,
 	})
 	if err != nil {
 		return
@@ -31,9 +31,8 @@ func TestClient_SendFriend(t *testing.T) {
 
 	// Create discord session
 	client, err := discord.NewClient(&discord.ClientConfig{
-		Token:       "MTE0NjgzNDY5NTc3NTA2NDA3NQ.G9edxF.1fuXWK-QGGqb6tz0pMNoVttOPCs7ncaSAFTmFA",
 		GetCookies:  true,
-		BuildNumber: 224244,
+		BuildNumber: 226220,
 		Client:      http,
 	})
 
@@ -44,7 +43,7 @@ func TestClient_SendFriend(t *testing.T) {
 	client.WsConnect()
 
 	type args struct {
-		config *discord.FriendConfig
+		config *discord.RegisterConfig
 	}
 
 	tests := []struct {
@@ -55,8 +54,10 @@ func TestClient_SendFriend(t *testing.T) {
 		{
 			name: "add friend",
 			args: args{
-				config: &discord.FriendConfig{
-					Username: "hcaptcha",
+				config: &discord.RegisterConfig{
+					Username:   "hcaptcha",
+					InviteCode: "lol",
+					CaptchaKey: "test",
 				},
 			},
 			c: client,
@@ -65,8 +66,71 @@ func TestClient_SendFriend(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := tt.c.SendFriend(tt.args.config)
-			fmt.Println(got, got1, err)
+			got, err := tt.c.Register(tt.args.config)
+			fmt.Println(got, err)
+		})
+	}
+}
+
+func TestClient_Join(t *testing.T) {
+	// Load fingerprint
+	fp, err := fpclient.LoadFingerprint(&fpclient.LoadingConfig{
+		FilePath: "./chrome.json",
+	})
+	if err != nil {
+		panic(err)
+
+	}
+
+	// Load HTTP client
+	http, err := cleanhttp.NewCleanHttpClient(&cleanhttp.Config{
+		BrowserFp: fp,
+		Log:       true,
+	})
+	if err != nil {
+		return
+	}
+
+	// Create discord session
+	client, err := discord.NewClient(&discord.ClientConfig{
+		Token:       "MTE1MDYwMTA1MTc2NzA1ODU0Mg.GYT9Ze.VTRQqDmw2oXFoMje3b6cLlIPy91Hi_sCreDtIk",
+		GetCookies:  true,
+		BuildNumber: 226220,
+		Client:      http,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	client.WsConnect()
+
+	type args struct {
+		config *discord.JoinConfig
+	}
+
+	tests := []struct {
+		name string
+		c    *discord.Client
+		args args
+	}{
+		{
+			name: "add friend",
+			args: args{
+				config: &discord.JoinConfig{
+					InviteCode: "zaSphzfm",
+					GuildID:    "1149530064925499402",
+					ChannelID:  "1149530065529491571",
+				},
+			},
+			c: client,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.c.JoinGuild(tt.args.config)
+			fmt.Println(got, err)
 		})
 	}
 }

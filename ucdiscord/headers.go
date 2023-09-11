@@ -63,12 +63,10 @@ func (c *Client) GetHeader(config *HeaderConfig) http.Header {
 	headerName, properties := c.getProperties(config)
 
 	h := http.Header{
-		`accept`:             {`*/*`},
-		`accept-encoding`:    {`gzip, deflate, br`},
-		`accept-language`:    {c.HttpClient.BaseHeader.AcceptLanguage},
-		`authorization`:      {c.Config.Token},
-		`content-type`:       {`application/json`},
-		//`cookie`:             {c.HttpClient.BaseHeader.Cookies},
+		`accept`:          {`*/*`},
+		`accept-encoding`: {`gzip, deflate, br`},
+		`accept-language`: {c.HttpClient.BaseHeader.AcceptLanguage},
+		`content-type`: {`application/json`},
 		`origin`:             {"https://discord.com"},
 		`referer`:            {`https://discord.com`},
 		`sec-ch-ua`:          {c.HttpClient.BaseHeader.SecChUa},
@@ -90,7 +88,6 @@ func (c *Client) GetHeader(config *HeaderConfig) http.Header {
 			`accept-language`,
 			`authorization`,
 			`content-type`,
-			//`cookie`,
 			`origin`,
 			`referer`,
 			`sec-ch-ua`,
@@ -107,6 +104,10 @@ func (c *Client) GetHeader(config *HeaderConfig) http.Header {
 			`x-discord-timezone`,
 			headerName,
 		},
+	}
+
+	if c.Config.Token != "" {
+		h.Set("authorization", c.Config.Token)
 	}
 
 	if config.Join != nil {

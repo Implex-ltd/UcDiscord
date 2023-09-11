@@ -3,7 +3,7 @@ module github.com/Implex-ltd/ucdiscord
 go 1.21
 
 require (
-	github.com/Implex-ltd/cleanhttp v0.0.0-20230907050107-09a1a13b5c2f
+	github.com/Implex-ltd/cleanhttp v0.0.0-20230911013353-e9e5d0aacb6e
 	github.com/Implex-ltd/fingerprint-client v0.0.0-20230830235428-380e1bbcfa4b
 	github.com/bogdanfinn/fhttp v0.5.24
 	github.com/google/uuid v1.3.1

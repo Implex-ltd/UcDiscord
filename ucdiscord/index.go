@@ -36,6 +36,14 @@ func NewClient(config *ClientConfig) (*Client, error) {
 }
 
 func (c *Client) GetCookies() error {
+	if c.Config.ForceCookies {
+		c.HttpClient.Do(cleanhttp.RequestOption{
+			Method: "GET",
+			Url:    "https://discord.com",
+			Header: c.GetHeader(&HeaderConfig{}),
+		})
+	}
+
 	c.HttpClient.Client.SetCookies(dUrl, []*http.Cookie{{
 		Name:  "locale",
 		Value: strings.Split(c.HttpClient.Config.BrowserFp.Navigator.Language, "-")[0],
@@ -80,7 +88,8 @@ func (c *Client) JoinGuild(config *JoinConfig) (*JoinServerResponse, error) {
 	}
 
 	header := c.GetHeader(&HeaderConfig{
-		Join: config,
+		Join:    config,
+		IsSuper: true,
 	})
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -89,6 +98,7 @@ func (c *Client) JoinGuild(config *JoinConfig) (*JoinServerResponse, error) {
 		Body:   bytes.NewReader(payload),
 		Header: header,
 	})
+
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())
 	}
@@ -127,13 +137,6 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 			IsSuper:  true,
 		})
 
-		header.Set("x-fingerprint", c.xfingerprint)
-
-		if config.CustomProperties == "" {
-			header.Del("x-context-properties")
-			header.Add("x-super-properties", "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImZyLUZSIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTE1LjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjIyNDI0NCwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=")
-		}
-
 		header.Add("x-captcha-key", config.CaptchaKey)
 		header.Set("referer", fmt.Sprintf("https://discord.com/invite/%s", config.InviteCode))
 	} else {
@@ -148,13 +151,6 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		header = c.GetHeader(&HeaderConfig{
 			IsXtrack: false,
 		})
-
-		header.Del("x-context-properties")
-		header.Del("authorization")
-		header.Del("x-discord-timezone")
-		header.Del("x-discord-locale")
-		header.Del("x-debug-options")
-		header.Del("x-track")
 	}
 
 	payload, err := json.Marshal(&pl)
@@ -162,7 +158,7 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		return nil, fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header.Add("x-fingerprint", c.xfingerprint)
+	header.Set("x-fingerprint", c.xfingerprint)
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
 		Method: "POST",
@@ -170,8 +166,6 @@ func (c *Client) Register(config *RegisterConfig) (*RegisterResponse, error) {
 		Body:   bytes.NewReader(payload),
 		Header: header,
 	})
-
-	fmt.Println(string(payload), header)
 
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request: %v", err.Error())

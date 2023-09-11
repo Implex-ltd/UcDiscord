@@ -7,6 +7,7 @@ import (
 type ClientConfig struct {
 	Token               string
 	GetCookies          bool
+	ForceCookies        bool
 	GetCloudflareCookes bool
 	BuildNumber         int
 	Client              *cleanhttp.CleanHttp

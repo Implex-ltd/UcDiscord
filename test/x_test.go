@@ -18,12 +18,12 @@ func TestClient_Cookies(t *testing.T) {
 	if err != nil {
 		panic(err)
 
-
 	}
 
 	// Load HTTP client
 	http, err := cleanhttp.NewCleanHttpClient(&cleanhttp.Config{
 		BrowserFp: fp,
+		Log: true,
 	})
 	if err != nil {
 		return
