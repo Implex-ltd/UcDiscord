@@ -205,7 +205,7 @@ func (c *Client) SetAvatar(config *AvatarConfig) error {
 
 	payload := fmt.Sprintf(`{"avatar": "%s"}`, pfp)
 
-	header := c.GetHeader(&HeaderConfig{})
+	header := c.GetHeader(&HeaderConfig{IsSuper: true})
 	header.Set("referer", "https://discord.com/channels/@me")
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -236,7 +236,9 @@ func (c *Client) SetBirth(config *EditBirthConfig) error {
 		return fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header := c.GetHeader(&HeaderConfig{})
+	header := c.GetHeader(&HeaderConfig{
+		IsSuper: true,
+	})
 	header.Set("referer", "https://discord.com/channels/@me")
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -267,7 +269,9 @@ func (c *Client) SetProfil(config *EditProfilConfig) error {
 		return fmt.Errorf("error marshaling payload: %v", err.Error())
 	}
 
-	header := c.GetHeader(&HeaderConfig{})
+	header := c.GetHeader(&HeaderConfig{
+		IsSuper: true,
+	})
 	header.Set("referer", "https://discord.com/channels/@me")
 
 	response, err := c.HttpClient.Do(cleanhttp.RequestOption{
@@ -326,7 +330,9 @@ func (c *Client) IsLocked() (bool, error) {
 		Method: "GET",
 		Url:    "https://discord.com/api/v9/users/@me/affinities/users",
 		Body:   nil,
-		Header: c.GetHeader(&HeaderConfig{}),
+		Header: c.GetHeader(&HeaderConfig{
+			IsSuper: true,
+		}),
 	})
 	if err != nil {
 		return true, fmt.Errorf("error making HTTP request: %v", err.Error())
