@@ -9,6 +9,8 @@ import (
 )
 
 func (C *Client) GetProperties(config *PropInfo) (headerName string, headerValue string, err error) {
+	bn := C.Config.Build
+
 	switch config.Type {
 	case PROP_CONTEXT:
 		headerName = "x-context-properties"
@@ -16,7 +18,7 @@ func (C *Client) GetProperties(config *PropInfo) (headerName string, headerValue
 		headerName = "x-super-properties"
 	case PROP_TRACK:
 		headerName = "x-track"
-		C.Config.Build = 9999
+		bn = 9999
 	default:
 		return "", "", fmt.Errorf("invalid type")
 	}
@@ -34,7 +36,7 @@ func (C *Client) GetProperties(config *PropInfo) (headerName string, headerValue
 		ReferrerCurrent:        "",
 		ReferringDomainCurrent: "",
 		ReleaseChannel:         "stable",
-		ClientBuildNumber:      C.Config.Build,
+		ClientBuildNumber:     bn,
 		ClientEventSource:      nil,
 	})
 
@@ -109,7 +111,7 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 	}
 
 	name, value, _ := C.GetProperties(config.Info)
-	header.Add(name, value)
+	header.Set(name, value)
 
 	if config.Info.Type != PROP_TRACK {
 		for k, v := range map[string]string{
@@ -117,34 +119,34 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 			`x-discord-locale`:   `fr`,
 			`x-discord-timezone`: `Europe/Paris`,
 		} {
-			header.Add(k, v)
+			header.Set(k, v)
 		}
 	}
 
 	if C.Config.Token != "" {
-		header.Add("authorization", C.Config.Token)
+		header.Set("authorization", C.Config.Token)
 	}
 
 	if config.Join {
 		value, _ := C.GetCtxProperties(config.GuildID, config.ChannelID, LOCATION_JOIN_GUILD)
-		header.Add(`x-context-properties`, value)
+		header.Set(`x-context-properties`, value)
 	}
 
 	if config.Friend {
 		value, _ := C.GetCtxProperties(config.GuildID, config.ChannelID, LOCATION_ADD_FRIEND)
-		header.Add(`x-context-properties`, value)
+		header.Set(`x-context-properties`, value)
 	}
 
 	if config.CaptchaKey != "" {
-		header.Add(`x-captcha-key`, config.CaptchaKey)
+		header.Set(`x-captcha-key`, config.CaptchaKey)
 	}
 
 	if config.CaptchaRqtoken != "" {
-		header.Add(`x-captcha-rqtoken`, config.CaptchaRqtoken)
+		header.Set(`x-captcha-rqtoken`, config.CaptchaRqtoken)
 	}
 
 	if config.Fingerprint != "" {
-		header.Add(`x-fingerprint`, config.Fingerprint)
+		header.Set(`x-fingerprint`, config.Fingerprint)
 	}
 
 	return header

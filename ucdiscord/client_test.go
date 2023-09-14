@@ -2,6 +2,7 @@ package ucdiscord
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
@@ -24,7 +25,7 @@ var (
 		Http:       H,
 	})
 
-	Token = "MTE1MTY2ODI5MzQ4MTAwNTA3Ng.G4WnlV.KK6jBkwzPIZEB4JSvq__Oi08GINoZnHMXt-MMM"
+	Token = "MTE1MTY3NzQ2NDEwODU5NzI5OQ.G6C0R0.sM_BoN-I9bWgDevT98X54DmMqe4K2f0YhF7e7U"
 )
 
 func TestClient_Funcs(t *testing.T) {
@@ -132,11 +133,19 @@ func TestClient_Funcs(t *testing.T) {
 			C:    C,
 		},
 		{
+			name: "patch_date",
+			C:    C,
+			args: args{
+				config: &Config{
+					Date: "1999-07-07",
+				},
+			},
+		},
+		{
 			name: "patch_user",
 			C:    C,
 			args: args{
 				config: &Config{
-					Date:        "1999-07-07",
 					DisplayName: "test-name",
 					Avatar:      "../examples/avatar.jpg",
 				},
@@ -144,23 +153,36 @@ func TestClient_Funcs(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.name, func(_ *testing.T) {
 			switch tt.name {
 			case "get_header":
-				header := C.GetHeader(&HeaderConfig{
+				// create account
+				log.Println(C.GetHeader(&HeaderConfig{
 					Info: &PropInfo{
 						Type: PROP_CONTEXT,
 					},
 					CaptchaKey:     "super_key",
 					CaptchaRqtoken: "super_rq",
 					Referer:        "/invite/zaSphzfm",
-				})
+				}))
 
-				for key, values := range header {
-					for _, value := range values {
-						fmt.Printf("%s: %s\n", key, value)
-					}
-				}
+				// join guild
+				log.Println(C.GetHeader(&HeaderConfig{
+					Info: &PropInfo{
+						Type: PROP_CONTEXT,
+					},
+					Join:      true,
+					GuildID:   "1151100515778842624",
+					ChannelID: "1151100515778842627",
+				}))
+
+				// add friend
+				log.Println(C.GetHeader(&HeaderConfig{
+					Info: &PropInfo{
+						Type: PROP_CONTEXT,
+					},
+					Friend: true,
+				}))
 
 			case "get_ctx_properties":
 				for _, loc := range []string{LOCATION_JOIN_GUILD, LOCATION_ADD_FRIEND} {
@@ -215,6 +237,16 @@ func TestClient_Funcs(t *testing.T) {
 				Token = data.Token
 
 			case "patch_user":
+				tt.C.Config.Token = Token
+				resp, data, err := tt.C.PatchUser(tt.args.config)
+				if err != nil {
+					panic(err)
+				}
+
+				fmt.Println(resp, data)
+				Token = data.Token
+
+			case "patch_date":
 				tt.C.Config.Token = Token
 				resp, data, err := tt.C.PatchUser(tt.args.config)
 				if err != nil {

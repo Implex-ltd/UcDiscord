@@ -186,7 +186,7 @@ func (C *Client) JoinHypesquad(House int) (resp *Response, err error) {
 	return resp, err
 }
 
-func (C *Client) VerifyEmail(jwt string) (resp *Response, data *VerifyResponse, err error) {
+func (C *Client) VerifyEmail(jwt, captcha string) (resp *Response, data *VerifyResponse, err error) {
 	if jwt == "" {
 		return nil, nil, fmt.Errorf("invalid params")
 	}
@@ -203,6 +203,7 @@ func (C *Client) VerifyEmail(jwt string) (resp *Response, data *VerifyResponse, 
 			Info: &PropInfo{
 				Type: PROP_SUPER,
 			},
+			CaptchaKey: captcha,
 		}),
 		Response: &data,
 	})
