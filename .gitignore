@@ -20,3 +20,8 @@
 # Go workspace file
 go.work
 *.json
+.back/*
+.idea/*
+.back
+.ws
+test
