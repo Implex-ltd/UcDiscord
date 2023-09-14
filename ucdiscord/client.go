@@ -81,6 +81,15 @@ func (C *Client) Register(config *Config) (resp *Response, data *RegisterRespons
 		Response: &data,
 	})
 
+	if data.Token != "" {
+		C.Config.Ws.Token = data.Token
+		C.Config.Token = data.Token
+
+		if C.Ws != nil {
+			C.Ws.Token = data.Token
+		}
+	}
+
 	return resp, data, err
 }
 
@@ -211,7 +220,7 @@ func (C *Client) VerifyEmail(jwt, captcha string) (resp *Response, data *VerifyR
 	if data.Token != "" {
 		C.Config.Ws.Token = data.Token
 		C.Config.Token = data.Token
-		
+
 		if C.Ws != nil {
 			C.Ws.Token = data.Token
 		}
