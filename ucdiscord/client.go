@@ -391,14 +391,14 @@ func (C *Client) AddFriend(username string) (resp *Response, data *CaptchaSpawnR
 	return resp, data, err
 }
 
-func (C *Client) IsLocked() (locked bool, err error) {
+func (C *Client) IsLocked() (locked bool, status int, err error) {
 	if C.Config.Token == "" {
-		return false, fmt.Errorf("token is missing")
+		return false, 0, fmt.Errorf("token is missing")
 	}
 
 	var data LockedResponse
 	resp, err := C.Do(Request{
-		Endpoint: `/users/@me/burst-credits`,
+		Endpoint: fmt.Sprintf("%s/users/@me/burst-credits", ENDPOINT),
 		Method:   "GET",
 		Header: C.GetHeader(&HeaderConfig{
 			Referer: `/channels/@me`,
@@ -410,12 +410,12 @@ func (C *Client) IsLocked() (locked bool, err error) {
 	})
 
 	if err != nil {
-		return false, err
+		return false, 0, err
 	}
 
-	if resp.Status == 403 && data.Code == 40002 {
-		return true, nil
+	if (resp.Status == 403 && data.Code == 40002) || resp.Status == 401 {
+		return true, resp.Status, nil
 	}
 
-	return false, nil
+	return false, resp.Status, nil
 }
