@@ -15,7 +15,7 @@ var (
 	dUrl, _ = url.Parse("https://discord.com")
 )
 
-func NewClient(config *Config) *Client {
+func NewClient(config *Config) (*Client, error) {
 	if config.ApiVersion != 0 {
 		VERSION = config.ApiVersion
 	}
@@ -27,10 +27,12 @@ func NewClient(config *Config) *Client {
 	}
 
 	if config.GetCookies {
-		C.GetCookies()
+		if _, _, err := C.GetCookies(); err != nil {
+			return nil, err
+		}
 	}
 
-	return C
+	return C, nil
 }
 
 func (C *Client) GetCookies() (resp *Response, data *FingerprintResponse, err error) {

@@ -19,7 +19,7 @@ var (
 		BrowserFp: F,
 	})
 
-	C = NewClient(&Config{
+	C, _ = NewClient(&Config{
 		GetCookies: true,
 		Build:      227102,
 		Http:       H,
