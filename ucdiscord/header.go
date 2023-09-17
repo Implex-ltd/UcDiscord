@@ -36,7 +36,7 @@ func (C *Client) GetProperties(config *PropInfo) (headerName string, headerValue
 		ReferrerCurrent:        "",
 		ReferringDomainCurrent: "",
 		ReleaseChannel:         "stable",
-		ClientBuildNumber:     bn,
+		ClientBuildNumber:      bn,
 		ClientEventSource:      nil,
 	})
 

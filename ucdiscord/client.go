@@ -221,6 +221,10 @@ func (C *Client) VerifyEmail(jwt, captcha string) (resp *Response, data *VerifyR
 		Response: &data,
 	})
 
+	if err != nil {
+		return nil, nil, err
+	}
+
 	if data.Token != "" {
 		C.Config.Ws.Token = data.Token
 		C.Config.Token = data.Token
