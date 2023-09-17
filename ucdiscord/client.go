@@ -45,6 +45,10 @@ func (C *Client) GetCookies() (resp *Response, data *FingerprintResponse, err er
 		Response: &data,
 	})
 
+	if err != nil {
+		return nil, nil, err
+	}
+
 	C.XFingerprint = data.Fingerprint
 
 	C.Config.Http.Client.SetCookies(dUrl, []*http.Cookie{{
