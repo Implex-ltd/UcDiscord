@@ -91,6 +91,10 @@ func (C *Client) Register(config *Config) (resp *Response, data *RegisterRespons
 		Response: &data,
 	})
 
+	if data == nil {
+		return nil, nil, fmt.Errorf("/register data is nil")
+	}
+
 	if data.Token != "" {
 		C.Config.Ws.Token = data.Token
 		C.Config.Token = data.Token
