@@ -51,6 +51,10 @@ func (C *Client) GetCookies() (resp *Response, data *FingerprintResponse, err er
 		return nil, nil, err
 	}
 
+	if data.Fingerprint == "" {
+		return nil, nil, fmt.Errorf("cant scrape x-fingerprint")
+	}
+
 	C.XFingerprint = data.Fingerprint
 
 	C.Config.Http.Client.SetCookies(dUrl, []*http.Cookie{{
