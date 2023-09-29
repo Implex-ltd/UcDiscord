@@ -1,6 +1,10 @@
 package ucdiscord
 
-import "github.com/Implex-ltd/cleanhttp/cleanhttp"
+import (
+	"time"
+
+	"github.com/Implex-ltd/cleanhttp/cleanhttp"
+)
 
 var (
 	HOUSE_BRAVERY   = 1
@@ -108,6 +112,46 @@ type JoinServerResponse struct {
 
 type JoinPayload struct {
 	SessionID string `json:"session_id"`
+}
+
+type SendMessagePayload struct {
+	MobileNetworkType string `json:"mobile_network_type"`
+	Content           string `json:"content"`
+	Nonce             string `json:"nonce"`
+	Tts               bool   `json:"tts"`
+	Flags             int    `json:"flags"`
+}
+type SendMessageResponse struct {
+	ID        string `json:"id"`
+	Type      int    `json:"type"`
+	Content   string `json:"content"`
+	ChannelID string `json:"channel_id"`
+	Author    struct {
+		ID                   string      `json:"id"`
+		Username             string      `json:"username"`
+		Avatar               string      `json:"avatar"`
+		Discriminator        string      `json:"discriminator"`
+		PublicFlags          int         `json:"public_flags"`
+		Flags                int         `json:"flags"`
+		Banner               interface{} `json:"banner"`
+		AccentColor          int         `json:"accent_color"`
+		GlobalName           string      `json:"global_name"`
+		AvatarDecorationData interface{} `json:"avatar_decoration_data"`
+		BannerColor          string      `json:"banner_color"`
+	} `json:"author"`
+	Attachments       []interface{} `json:"attachments"`
+	Embeds            []interface{} `json:"embeds"`
+	Mentions          []interface{} `json:"mentions"`
+	MentionRoles      []interface{} `json:"mention_roles"`
+	Pinned            bool          `json:"pinned"`
+	MentionEveryone   bool          `json:"mention_everyone"`
+	Tts               bool          `json:"tts"`
+	Timestamp         time.Time     `json:"timestamp"`
+	EditedTimestamp   interface{}   `json:"edited_timestamp"`
+	Flags             int           `json:"flags"`
+	Components        []interface{} `json:"components"`
+	Nonce             string        `json:"nonce"`
+	ReferencedMessage interface{}   `json:"referenced_message"`
 }
 
 type VerifyEmailPayload struct {

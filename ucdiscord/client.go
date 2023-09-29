@@ -441,3 +441,40 @@ func (C *Client) IsLocked() (locked bool, status int, err error) {
 
 	return false, resp.Status, nil
 }
+
+func (C *Client) SendMessage(message string, tts bool, ChannelID string) (_ *SendMessageResponse, err error) {
+	if C.Config.Token == "" {
+		println("~ token > " + C.Config.Token)
+		return nil, fmt.Errorf("Token is missing. ")
+	}
+	if message == "" || ChannelID == "" {
+		return nil, fmt.Errorf("Invalid params. ")
+	}
+
+	var data SendMessageResponse
+	_, err = C.Do(Request{
+		Endpoint: fmt.Sprintf(`%s/channels/%s/messages`, ENDPOINT, ChannelID),
+		Method:   "POST",
+		Body: &SendMessagePayload{
+			MobileNetworkType: "unknown",
+			Content:           message,
+			Nonce:             fmt.Sprint(Snowflake()),
+			Tts:               tts,
+			Flags:             0,
+		},
+		Header: C.GetHeader(&HeaderConfig{
+			Referer: fmt.Sprintf(`%s/channels/%s/messages`, ENDPOINT, ChannelID), //fmt.Sprintf(`https://discord.com/channels/%s/%s`, ServerID, ChannelID), //serverid/chanelid
+
+			Info: &PropInfo{
+				Type: PROP_SUPER,
+			},
+		}),
+		Response: &data,
+	})
+	println("{Content: " + data.Content + "}")
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
+}

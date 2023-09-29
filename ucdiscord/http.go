@@ -37,5 +37,6 @@ func (c *Client) Do(config Request) (*Response, error) {
 
 	return &Response{
 		Status: req.StatusCode,
+		Body: req.Body,
 	}, nil
 }
