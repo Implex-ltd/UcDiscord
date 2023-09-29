@@ -442,17 +442,15 @@ func (C *Client) IsLocked() (locked bool, status int, err error) {
 	return false, resp.Status, nil
 }
 
-func (C *Client) SendMessage(message string, tts bool, ChannelID string) (_ *SendMessageResponse, err error) {
+func (C *Client) SendMessage(message string, tts bool, ChannelID string) (resp *Response, data *SendMessageResponse, err error) {
 	if C.Config.Token == "" {
-		println("~ token > " + C.Config.Token)
-		return nil, fmt.Errorf("Token is missing. ")
+		return nil, nil, fmt.Errorf("Token is missing. ")
 	}
 	if message == "" || ChannelID == "" {
-		return nil, fmt.Errorf("Invalid params. ")
+		return nil, nil, fmt.Errorf("Invalid params. ")
 	}
 
-	var data SendMessageResponse
-	_, err = C.Do(Request{
+	resp, err = C.Do(Request{
 		Endpoint: fmt.Sprintf(`%s/channels/%s/messages`, ENDPOINT, ChannelID),
 		Method:   "POST",
 		Body: &SendMessagePayload{
@@ -463,7 +461,7 @@ func (C *Client) SendMessage(message string, tts bool, ChannelID string) (_ *Sen
 			Flags:             0,
 		},
 		Header: C.GetHeader(&HeaderConfig{
-			Referer: fmt.Sprintf(`%s/channels/%s/messages`, ENDPOINT, ChannelID), //fmt.Sprintf(`https://discord.com/channels/%s/%s`, ServerID, ChannelID), //serverid/chanelid
+			Referer: fmt.Sprintf(`%s/channels/%s/messages`, ENDPOINT, ChannelID),
 
 			Info: &PropInfo{
 				Type: PROP_SUPER,
@@ -471,10 +469,9 @@ func (C *Client) SendMessage(message string, tts bool, ChannelID string) (_ *Sen
 		}),
 		Response: &data,
 	})
-	println("{Content: " + data.Content + "}")
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return &data, nil
+	return resp, data, nil
 }

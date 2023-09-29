@@ -281,8 +281,7 @@ func TestClient_Funcs(t *testing.T) {
 
 			case "send_message":
 				tt.C.Config.Token = Token
-				println("Hi from send message")
-				data, err := tt.C.SendMessage("UwdasdasdasU ", false, "1157330807317340200")
+				_, data, err := tt.C.SendMessage("UwU ", false, "1157330807317340200")
 				if err != nil {
 					panic(err)
 				}
