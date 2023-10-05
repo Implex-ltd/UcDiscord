@@ -35,6 +35,9 @@ type Config struct {
 	// patch @me [date, email, password, displayname, avatar]
 	Date, Email, Password, DisplayName, Avatar string
 
+	// Add Friend [username, captchakey, rqdata]
+	RqToken string
+
 	// patch profil [accentcolor, bio, pronouns]
 	AccentColor   int
 	Bio, Pronouns string

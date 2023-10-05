@@ -266,8 +266,8 @@ func (C *Client) SupressTutorial() (resp *Response, err error) {
 	return resp, err
 }
 
-func (C *Client) AddFriend(username string) (resp *Response, data *CaptchaSpawnResponse, err error) {
-	if username == "" || C.Ws.ReadyData.SessionID == "" {
+func (C *Client) AddFriend(config *Config) (resp *Response, data *CaptchaSpawnResponse, err error) {
+	if config.Username == "" || C.Ws.ReadyData.SessionID == "" {
 		return nil, nil, fmt.Errorf("invalid params or websocket disconnected")
 	}
 
@@ -398,7 +398,7 @@ func (C *Client) AddFriend(username string) (resp *Response, data *CaptchaSpawnR
 		Endpoint: fmt.Sprintf("%s/users/@me/relationships", ENDPOINT),
 		Method:   "POST",
 		Body: &AddFriendPayload{
-			Username: username,
+			Username: config.Username,
 		},
 		Header: C.GetHeader(&HeaderConfig{
 			Referer: `/channels/@me`,
@@ -406,6 +406,8 @@ func (C *Client) AddFriend(username string) (resp *Response, data *CaptchaSpawnR
 			Info: &PropInfo{
 				Type: PROP_SUPER,
 			},
+			CaptchaKey:     config.CaptchaKey,
+			CaptchaRqtoken: config.RqToken,
 		}),
 		Response: &data,
 	})
