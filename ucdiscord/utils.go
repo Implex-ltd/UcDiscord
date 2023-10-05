@@ -2,8 +2,17 @@ package ucdiscord
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
+	"time"
 )
+
+// Thanks to https://github.com/V4NSH4J/discord-mass-DM-GO ✨
+func Snowflake() int {
+	snowflake := strconv.FormatInt((time.Now().UTC().UnixNano()/1000000)-1420070400000, 2) + "0000000000000000000000"
+	nonce, _ := strconv.ParseInt(snowflake, 2, 64)
+	return int(nonce)
+}
 
 func AddBase64Padding(base64String string) string {
 	paddingCount := 4 - (len(base64String) % 4)

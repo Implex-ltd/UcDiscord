@@ -25,7 +25,7 @@ var (
 		Http:       H,
 	})
 
-	Token = "MTE1MTY3NzQ2NDEwODU5NzI5OQ.G6C0R0.sM_BoN-I9bWgDevT98X54DmMqe4K2f0YhF7e7U"
+	Token = "MTE1NzA2ODQxNjAyMTE3MjI4OA.GY9L8V.0ckWdyoZ1Wm1SaT8tFCHlZtY3e6BdWbSwZUNDQ"
 )
 
 func TestClient_Funcs(t *testing.T) {
@@ -84,7 +84,7 @@ func TestClient_Funcs(t *testing.T) {
 			name: "get_header",
 			C:    C,
 		},
-		{
+		/*{
 			name: "register",
 			C:    C,
 			args: args{
@@ -116,18 +116,18 @@ func TestClient_Funcs(t *testing.T) {
 				},
 			},
 		},
-		/*
-			// lock  -> set flag 1048576 (spammer)
-			{
-				name: "patch_email",
-				C:    C,
-				args: args{
-					config: &Config{
-						Email:    "kryvyju784@tempmail.guru",
-						Password: "SuperPass%12231$",
-					},
+
+		// lock  -> set flag 1048576 (spammer)
+		{
+			name: "patch_email",
+			C:    C,
+			args: args{
+				config: &Config{
+					Email:    "kryvyju784@tempmail.guru",
+					Password: "SuperPass%12231$",
 				},
-			},*/
+			},
+		},
 		{
 			name: "hypesquad_set",
 			C:    C,
@@ -141,6 +141,7 @@ func TestClient_Funcs(t *testing.T) {
 				},
 			},
 		},
+
 		{
 			name: "patch_user",
 			C:    C,
@@ -150,6 +151,10 @@ func TestClient_Funcs(t *testing.T) {
 					Avatar:      "../examples/avatar.jpg",
 				},
 			},
+		},*/
+		{
+			name: "send_message",
+			C:    C,
 		},
 	}
 	for _, tt := range tests {
@@ -273,6 +278,16 @@ func TestClient_Funcs(t *testing.T) {
 				}
 
 				fmt.Println(resp, data)
+
+			case "send_message":
+				tt.C.Config.Token = Token
+				_, data, err := tt.C.SendMessage("UwU ", false, "1157330807317340200")
+				if err != nil {
+					panic(err)
+				}
+
+				fmt.Println(data.ID + " | OK")
+
 			}
 		})
 	}

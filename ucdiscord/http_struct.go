@@ -2,6 +2,8 @@ package ucdiscord
 
 import (
 	"fmt"
+	"io"
+
 	http "github.com/bogdanfinn/fhttp"
 )
 
@@ -20,4 +22,5 @@ type Request struct {
 
 type Response struct {
 	Status int
+	Body   io.ReadCloser
 }
