@@ -36,6 +36,13 @@ func NewClient(config *Config) (*Client, error) {
 }
 
 func (C *Client) GetCookies() (resp *Response, data *FingerprintResponse, err error) {
+	token := C.Config.Token
+	C.Config.Token = ""
+
+	defer func() {
+		C.Config.Token = token
+	}()
+
 	resp, err = C.Do(Request{
 		Endpoint: fmt.Sprintf("%s/experiments", ENDPOINT),
 		Method:   "GET",
@@ -52,11 +59,11 @@ func (C *Client) GetCookies() (resp *Response, data *FingerprintResponse, err er
 	}
 
 	if data == nil {
-		return nil, nil, fmt.Errorf("cant scrape x-fingerprint")
+		return nil, nil, fmt.Errorf("cant scrape x-fingerprint (data nil)")
 	}
 
 	if data.Fingerprint == "" {
-		return nil, nil, fmt.Errorf("cant scrape x-fingerprint")
+		return nil, nil, fmt.Errorf("cant scrape x-fingerprint (fp not found)")
 	}
 
 	C.XFingerprint = data.Fingerprint
