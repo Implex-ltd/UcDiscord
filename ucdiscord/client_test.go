@@ -25,7 +25,7 @@ var (
 		Http:       H,
 	})
 
-	Token = "MTE1NzA2ODQxNjAyMTE3MjI4OA.GY9L8V.0ckWdyoZ1Wm1SaT8tFCHlZtY3e6BdWbSwZUNDQ"
+	Token = "MTE2MDEzMTc3MTIzMzQ4NDg1MA.Gma_RS.V2wQ7XJ-QDLgRfwZPoHpWlLwPgytzlYbPFvrEk"
 )
 
 func TestClient_Funcs(t *testing.T) {

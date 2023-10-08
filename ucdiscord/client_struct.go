@@ -21,9 +21,9 @@ type Client struct {
 }
 
 type Config struct {
-	Token             string
-	Build, ApiVersion int
-	GetCookies        bool
+	Token              string
+	Build, ApiVersion  int
+	GetCookies bool
 
 	Http *cleanhttp.CleanHttp
 	Ws   *ClientWebsocket
