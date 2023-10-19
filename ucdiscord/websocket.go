@@ -10,10 +10,6 @@ import (
 )
 
 func NewWebsocket(Token string, Prop *XProp) (*ClientWebsocket, error) {
-	if Token == "" {
-		return nil, fmt.Errorf("token invalid")
-	}
-
 	return &ClientWebsocket{
 		Token: Token,
 		Open:  true,
