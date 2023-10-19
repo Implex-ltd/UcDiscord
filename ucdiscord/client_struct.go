@@ -21,9 +21,9 @@ type Client struct {
 }
 
 type Config struct {
-	Token              string
-	Build, ApiVersion  int
-	GetCookies bool
+	Token             string
+	Build, ApiVersion int
+	GetCookies        bool
 
 	Http *cleanhttp.CleanHttp
 	Ws   *ClientWebsocket
@@ -58,7 +58,7 @@ type Register struct {
 	Invite        string `json:"invite"`
 	Consent       bool   `json:"consent"`
 	GiftCodeSkuID any    `json:"gift_code_sku_id"`
-	Unique        bool   `json:"unique_username_registration"`
+	//Unique        bool   `json:"unique_username_registration"`
 }
 
 type RegisterResponse struct {

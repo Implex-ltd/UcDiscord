@@ -10,12 +10,12 @@ var (
 )
 
 type HeaderConfig struct {
-	Info                       *PropInfo
-	Join, Friend               bool
-	GuildID, ChannelID         string
-	CaptchaKey, CaptchaRqtoken string
-	Referer                    string
-	Fingerprint                string
+	Info                           *PropInfo
+	Join, Friend                   bool
+	GuildID, ChannelID             string
+	CaptchaKey, CaptchaRqtoken     string
+	Referer                        string
+	Fingerprint, ContextProperties string
 }
 
 type PropInfo struct {

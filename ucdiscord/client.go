@@ -9,6 +9,7 @@ import (
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
 	http "github.com/bogdanfinn/fhttp"
 	"github.com/google/uuid"
+
 )
 
 var (
@@ -89,7 +90,6 @@ func (C *Client) Register(config *Config) (resp *Response, data *RegisterRespons
 			Fingerprint: C.XFingerprint,
 			Invite:      config.Invite,
 			Consent:     true,
-			Unique:      true,
 		},
 		Header: C.GetHeader(&HeaderConfig{
 			Referer:     fmt.Sprintf(`/invite/%s`, config.Invite),
@@ -483,4 +483,43 @@ func (C *Client) SendMessage(message string, tts bool, ChannelID string) (resp *
 	}
 
 	return resp, data, nil
+}
+
+func (C *Client) CaptchaEvent(siteKey string) (resp *Response, err error) {
+	if siteKey == "" || C.Ws.ReadyData.SessionID == "" {
+		return nil, fmt.Errorf("invalid params or websocket disconnected")
+	}
+
+	resp, err = C.Do(Request{
+		Endpoint: fmt.Sprintf("%s/science", ENDPOINT),
+		Method:   "POST",
+		Body: &FriendScience{
+			Token: C.Ws.ReadyData.AnalyticsToken,
+			Events: []ScEvent{
+				{
+					Type: "captcha_event",
+					Properties: ScProperties{
+						ClientTrackTimestamp:        time.Now().UnixNano() / int64(time.Millisecond),
+						CaptchaEventName:            "verify",
+						CaptchaService:              "hcaptcha",
+						SiteKey:                     siteKey,
+						CaptchaFlowKey:              "814d5ca3-0b6a-4ac5-b350-403ff03bf8af",
+						ClientPerformanceMemory:     0,
+						AccessibilityFeatures:       256,
+						RenderedLocale:              "fr",
+						AccessibilitySupportEnabled: false,
+						ClientUUID:                  C.Ws.ReadyData.AuthSessionIDHash,
+						ClientSendTimestamp:         time.Now().UnixNano() / int64(time.Millisecond),
+					},
+				},
+			},
+		},
+		Header: C.GetHeader(&HeaderConfig{
+			Info: &PropInfo{
+				Type: PROP_SUPER,
+			},
+		}),
+	})
+
+	return resp, err
 }

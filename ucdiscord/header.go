@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	http "github.com/bogdanfinn/fhttp"
+
 )
 
 func (C *Client) GetProperties(config *PropInfo) (headerName string, headerValue string, err error) {
@@ -71,6 +72,7 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 		`authority`:          {`discord.com`},
 		`accept`:             {`*/*`},
 		`accept-language`:    {C.Config.Http.BaseHeader.AcceptLanguage},
+		`accept-encoding`:    {`gzip, deflate, br`},
 		`content-type`:       {`application/json`},
 		`origin`:             {`https://discord.com`},
 		`referer`:            {fmt.Sprintf("https://discord.com%s", config.Referer)},
@@ -86,6 +88,7 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 			`authority`,
 			`accept`,
 			`accept-language`,
+			`accept-encoding`,
 			`authorization`,
 			`content-type`,
 			`cookie`,
@@ -135,6 +138,10 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 	if config.Friend {
 		value, _ := C.GetCtxProperties(config.GuildID, config.ChannelID, LOCATION_ADD_FRIEND)
 		header.Set(`x-context-properties`, value)
+	}
+
+	if config.ContextProperties != "" {
+		header.Set(`x-context-properties`, config.ContextProperties)
 	}
 
 	if config.CaptchaKey != "" {
