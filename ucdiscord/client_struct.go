@@ -229,6 +229,9 @@ type CaptchaSpawnResponse struct {
 }
 
 type ScProperties struct {
+	UptimeApp                      int    `json:"uptime_app"`
+	ClientRtcState                 string `json:"client_rtc_state"`
+	ClientAppState                 string `json:"client_app_state"`
 	CaptchaEventName               string `json:"captcha_event_name"`
 	CaptchaFlowKey                 string `json:"captcha_flow_key"`
 	CaptchaService                 string `json:"captcha_service"`

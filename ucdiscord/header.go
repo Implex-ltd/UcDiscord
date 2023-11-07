@@ -34,8 +34,8 @@ func (C *Client) GetProperties(config *PropInfo) (headerName string, headerValue
 		OsVersion:              C.UserAgent.OSVersion,
 		Referrer:               "",
 		ReferringDomain:        "",
-		ReferrerCurrent:        "",
-		ReferringDomainCurrent: "",
+		ReferrerCurrent:        "https://discord.com/",
+		ReferringDomainCurrent: "discord.com",
 		ReleaseChannel:         "stable",
 		ClientBuildNumber:      bn,
 		ClientEventSource:      nil,
@@ -135,13 +135,13 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 		header.Set(`x-context-properties`, value)
 	}
 
+	if config.ContextProperties != "" {
+		header.Set(`x-context-properties`, config.ContextProperties)
+	}
+
 	if config.Friend {
 		value, _ := C.GetCtxProperties(config.GuildID, config.ChannelID, LOCATION_ADD_FRIEND)
 		header.Set(`x-context-properties`, value)
-	}
-
-	if config.ContextProperties != "" {
-		header.Set(`x-context-properties`, config.ContextProperties)
 	}
 
 	if config.CaptchaKey != "" {
