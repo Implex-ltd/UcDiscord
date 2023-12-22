@@ -3,7 +3,6 @@ package ucdiscord
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
 )
@@ -34,8 +33,6 @@ func (c *Client) Do(config Request) (*Response, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		log.Println(string(body))
 
 		err = json.NewDecoder(bytes.NewReader(body)).Decode(&config.Response)
 		if err != nil {
