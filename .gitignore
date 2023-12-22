@@ -26,3 +26,4 @@ go.work
 .ws
 test
 .tmp/*
+lol.go

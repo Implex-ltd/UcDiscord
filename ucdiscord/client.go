@@ -1,7 +1,11 @@
 package ucdiscord
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/url"
 	"strings"
 	"time"
@@ -445,10 +449,10 @@ func (C *Client) IsLocked() (locked bool, status int, err error) {
 
 func (C *Client) SendMessage(message string, tts bool, ChannelID string) (resp *Response, data *SendMessageResponse, err error) {
 	if C.Config.Token == "" {
-		return nil, nil, fmt.Errorf("Token is missing. ")
+		return nil, nil, fmt.Errorf("token is missing. ")
 	}
 	if message == "" || ChannelID == "" {
-		return nil, nil, fmt.Errorf("Invalid params. ")
+		return nil, nil, fmt.Errorf("invalid params")
 	}
 
 	resp, err = C.Do(Request{
@@ -514,4 +518,76 @@ func (C *Client) CaptchaEvent(siteKey string) (resp *Response, err error) {
 	})
 
 	return resp, err
+}
+
+/*
+	{
+		"message": "Corps de formulaire non valide",
+		"code": 50035,
+		"errors": {
+			"_errors": [
+				{
+					"code": "DICT_TYPE_CONVERT",
+					"message": "Seuls les dictionnaires peuvent \u00eatre utilis\u00e9s dans un DictType"
+				}
+			]
+		}
+	}
+*/
+func (C *Client) SendInteraction(config *Config) (resp *Response, err error) {
+	if C.Config.Token == "" {
+		return nil, fmt.Errorf("token is missing. ")
+	}
+
+	if config.Data == "" || config.Type == 0 || config.ChannelD == "" || config.GuildID == "" || config.ApplicationID == "" || config.AnalyticsLocation == "" {
+		return nil, fmt.Errorf("invalid params")
+	}
+
+	data := json.RawMessage(config.Data)
+
+	fullPayload, err := json.Marshal(&InteractionPayload{
+		Nonce:             fmt.Sprint(Snowflake()),
+		Type:              config.Type,
+		ApplicationID:     config.ApplicationID,
+		GuildID:           config.GuildID,
+		ChannelID:         config.ChannelD,
+		SessionID:         C.Ws.ReadyData.SessionID,
+		AnalyticsLocation: config.AnalyticsLocation,
+		Data:              data,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var bodyBuffer bytes.Buffer
+	writer := multipart.NewWriter(&bodyBuffer)
+	//writer.SetBoundary("WebKitFormBoundaryH5OPcFuDI6Q2nXzF")
+
+	jsonField, err := writer.CreateFormField("payload_json")
+	if err != nil {
+		return nil, err
+	}
+
+	io.WriteString(jsonField, string(fullPayload))
+	writer.Close()
+
+	//fmt.Println(bodyBuffer.String())
+
+	resp, err = C.Do(Request{
+		Endpoint: fmt.Sprintf(`%s/interactions`, ENDPOINT),
+		Method:   "POST",
+		Body:     bodyBuffer.Bytes(),
+		Header: C.GetHeader(&HeaderConfig{
+			Referer: fmt.Sprintf(`%s/channels/%s/%s`, ENDPOINT, config.GuildID, config.ChannelD),
+			Info: &PropInfo{
+				Type: PROP_SUPER,
+			},
+			ContentType: writer.FormDataContentType(),
+		}),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }

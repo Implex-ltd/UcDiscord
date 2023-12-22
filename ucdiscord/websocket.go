@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/dgrr/fastws"
+	"github.com/gorilla/websocket"
 )
 
 func NewWebsocket(Token string, Prop *XProp) (*ClientWebsocket, error) {
@@ -18,13 +18,12 @@ func NewWebsocket(Token string, Prop *XProp) (*ClientWebsocket, error) {
 }
 
 func (C *ClientWebsocket) Login() (err error) {
-	C.Conn, err = fastws.Dial(fmt.Sprintf("wss://gateway.discord.gg/?encoding=json&v=%d", VERSION))
+	C.Conn, _, err = websocket.DefaultDialer.Dial(fmt.Sprintf("wss://gateway.discord.gg/?encoding=json&v=%d", VERSION), nil)
 	if err != nil {
 		return err
 	}
 
-	var buff []byte
-	_, buff, err = C.Conn.ReadMessage(buff)
+	_, buff, err := C.Conn.ReadMessage()
 	if err != nil {
 		return err
 	}
@@ -32,6 +31,10 @@ func (C *ClientWebsocket) Login() (err error) {
 	var Op OpLoginResponse
 	if err := json.Unmarshal(buff, &Op); err != nil {
 		return err
+	}
+
+	if C.DebugRecvData && C.Debug {
+		log.Println(string(buff))
 	}
 
 	go C.Heartbeat(Op.D.HeartbeatInterval)
@@ -67,7 +70,8 @@ func (C *ClientWebsocket) Login() (err error) {
 		return err
 	}
 
-	if _, err = C.Conn.Write(payload); err != nil {
+	if err = C.Conn.WriteMessage(websocket.BinaryMessage, payload); err != nil {
+		fmt.Println("cant write payload")
 		return err
 	}
 
@@ -90,7 +94,10 @@ func (C *ClientWebsocket) Heartbeat(span int) {
 			return
 		}
 
-		if _, err := C.Conn.WriteString(`{"op": 1, "d": 3}`); err != nil {
+		if err := C.Conn.WriteMessage(websocket.BinaryMessage, []byte(`{"op": 1, "d": 3}`)); err != nil {
+			if C.Debug {
+				log.Println("cant sent heatbeat", err)
+			}
 			C.Open = false
 			return
 		}
@@ -99,15 +106,17 @@ func (C *ClientWebsocket) Heartbeat(span int) {
 
 func (C *ClientWebsocket) Listen() {
 	for C.Open {
-		var buff []byte
-
-		_, buff, err := C.Conn.ReadMessage(buff)
+		_, buff, err := C.Conn.ReadMessage()
 		if err != nil {
 			C.Open = false
 			if C.Debug {
-				log.Println(err, string(buff))
+				log.Println("listen read:", err, string(buff))
 			}
 			return
+		}
+
+		if C.DebugRecvData && C.Debug {
+			log.Println(string(buff))
 		}
 
 		var out TData
@@ -127,10 +136,11 @@ func (C *ClientWebsocket) Listen() {
 		case "READY":
 			var out Reply
 			if err := json.Unmarshal(buff, &out); err != nil {
-				C.Open = false
 				if C.Debug {
-					log.Println(err, string(buff))
+					log.Println("cant unmarshal ready payload:", err)
 				}
+
+				C.Open = false
 				return
 			}
 			C.ReadyData = &out.D
@@ -172,7 +182,7 @@ func (C *ClientWebsocket) UpdateStatus(Status, State string) error {
 		return err
 	}
 
-	if _, err = C.Conn.Write(payload); err != nil {
+	if err = C.Conn.WriteMessage(websocket.BinaryMessage, payload); err != nil {
 		return err
 	}
 

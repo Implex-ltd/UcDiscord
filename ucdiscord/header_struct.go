@@ -16,6 +16,7 @@ type HeaderConfig struct {
 	CaptchaKey, CaptchaRqtoken     string
 	Referer                        string
 	Fingerprint, ContextProperties string
+	ContentType                    string
 }
 
 type PropInfo struct {

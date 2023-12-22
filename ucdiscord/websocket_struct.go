@@ -1,15 +1,15 @@
 package ucdiscord
 
 import (
-	"github.com/dgrr/fastws"
+	"github.com/gorilla/websocket"
 )
 
 type ClientWebsocket struct {
-	Open, Ready, LogNonImplemented, Debug bool
-	Token                                 string
-	Conn                                  *fastws.Conn
-	Prop                                  *XProp
-	ReadyData                             *D
+	Open, Ready, LogNonImplemented, Debug, DebugRecvData bool
+	Token                                                string
+	Conn                                                 *websocket.Conn
+	Prop                                                 *XProp
+	ReadyData                                            *D
 }
 
 type WsData struct {
@@ -93,7 +93,7 @@ type D struct {
 	SessionID         string           `json:"session_id"`
 	ResumeGatewayURL  string           `json:"resume_gateway_url"`
 	Relationships     []interface{}    `json:"relationships"`
-	ReadState         ReadState        `json:"read_state"`
+	//ReadState         ReadState        `json:"read_state"`
 	PrivateChannels   []interface{}    `json:"private_channels"`
 	MergedMembers     [][]MergedMember `json:"merged_members"`
 	Guilds            []Guild          `json:"guilds"`

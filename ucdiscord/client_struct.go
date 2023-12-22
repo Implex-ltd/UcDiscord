@@ -1,6 +1,7 @@
 package ucdiscord
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/Implex-ltd/cleanhttp/cleanhttp"
@@ -34,7 +35,10 @@ type Config struct {
 	Username, CaptchaKey string
 
 	// Join guild [invite, guildid, channelid]
-	Invite, GuildID, ChannelD string
+	// Interaction [application_id, guildid, channelid, type, analytics_location, data]
+	Invite, GuildID, ChannelD, ApplicationID, AnalyticsLocation string
+	Type                                                        int
+	Data                                                        string
 
 	// patch @me [date, email, password, displayname, avatar]
 	Date, Email, Password, DisplayName, Avatar string
@@ -314,4 +318,15 @@ type FriendScience struct {
 type LockedResponse struct {
 	Message string `json:"message"`
 	Code    int    `json:"code"`
+}
+
+type InteractionPayload struct {
+	Type              int             `json:"type"`
+	ApplicationID     string          `json:"application_id"`
+	GuildID           string          `json:"guild_id"`
+	ChannelID         string          `json:"channel_id"`
+	SessionID         string          `json:"session_id"`
+	Data              json.RawMessage `json:"data"`
+	Nonce             string          `json:"nonce"`
+	AnalyticsLocation string          `json:"analytics_location"`
 }

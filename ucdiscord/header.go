@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	http "github.com/bogdanfinn/fhttp"
-
 )
 
 func (C *Client) GetProperties(config *PropInfo) (headerName string, headerValue string, err error) {
@@ -72,10 +71,10 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 		`authority`:          {`discord.com`},
 		`accept`:             {`*/*`},
 		`accept-language`:    {C.Config.Http.BaseHeader.AcceptLanguage},
-		`accept-encoding`:    {`gzip, deflate, br`},
+		`accept-encoding`:    {`application/json`},
 		`content-type`:       {`application/json`},
 		`origin`:             {`https://discord.com`},
-		`referer`:            {fmt.Sprintf("https://discord.com%s", config.Referer)},
+		`referer`:            {config.Referer},
 		`sec-ch-ua`:          {C.Config.Http.BaseHeader.SecChUa},
 		`sec-ch-ua-mobile`:   {C.Config.Http.BaseHeader.SecChUaMobile},
 		`sec-ch-ua-platform`: {C.Config.Http.BaseHeader.SecChUaPlatform},
@@ -154,6 +153,11 @@ func (C *Client) GetHeader(config *HeaderConfig) http.Header {
 
 	if config.Fingerprint != "" {
 		header.Set(`x-fingerprint`, config.Fingerprint)
+	}
+
+	if config.ContentType != "application/json" && config.ContentType != "" {
+		header.Del("content-type") // dont ask why
+		header.Set("content-type", config.ContentType)
 	}
 
 	return header
