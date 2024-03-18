@@ -81,6 +81,10 @@ func CleanPatchUser(P *PatchPayload) map[string]interface{} {
 		data["password"] = P.Password
 	}
 
+	if P.Username != "" {
+		data["username"] = P.Username
+	}
+
 	if P.Avatar != "" {
 		data["avatar"] = P.Avatar
 	}
