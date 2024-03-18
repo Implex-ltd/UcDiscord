@@ -148,7 +148,7 @@ func (C *Client) JoinGuild(config *Config) (resp *Response, data *JoinServerResp
 }
 
 func (C *Client) PatchUser(config *Config) (resp *Response, data *SetBirthResponse, err error) {
-	if config.DisplayName == "" && config.Date == "" && config.Email == "" && config.Password == "" && config.Avatar == "" {
+	if config.Username == "" && config.DisplayName == "" && config.Date == "" && config.Email == "" && config.Password == "" && config.Avatar == "" {
 		return nil, nil, fmt.Errorf("invalid params")
 	}
 
@@ -167,6 +167,7 @@ func (C *Client) PatchUser(config *Config) (resp *Response, data *SetBirthRespon
 			Password:    config.Password,
 			Avatar:      config.Avatar,
 			DisplayName: config.DisplayName,
+			Username:    config.Username,
 		}),
 		Header: C.GetHeader(&HeaderConfig{
 			Referer: `/channels/@me`,

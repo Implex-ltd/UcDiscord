@@ -176,6 +176,7 @@ type PatchPayload struct {
 	Password    string `json:"password"`
 	Avatar      string `json:"avatar"`
 	DisplayName string `json:"global_name"`
+	Username    string `json:"username"`
 }
 
 type HypesquadPayload struct {
@@ -205,6 +206,7 @@ type SetBirthResponse struct {
 	LinkedUsers          []any  `json:"linked_users"`
 	Bio                  string `json:"bio"`
 	AuthenticatorTypes   []any  `json:"authenticator_types"`
+	ErrorCode            string `json:"code"`
 }
 
 type SetProfilResponse struct {
