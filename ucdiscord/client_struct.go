@@ -206,8 +206,8 @@ type SetBirthResponse struct {
 	LinkedUsers          []any  `json:"linked_users"`
 	Bio                  string `json:"bio"`
 	AuthenticatorTypes   []any  `json:"authenticator_types"`
-	ErrorCode            int    `json:"code,omitempty"`
-	ErrorMessage         string `json:"message,omitempty"`
+	ErrorCode            any    `json:"code,omitempty"`
+	ErrorMessage         any `json:"message,omitempty"`
 	Errors               any    `json:"errors,omitempty"`
 }
 
